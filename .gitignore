@@ -1,4 +1,6 @@
 .DS_STORE
 *.fla
 *.swf
+*.png
+*.bmp
 src/org/flixel/*
