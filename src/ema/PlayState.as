@@ -15,7 +15,7 @@ package ema {
 	  protected var grass:FlxSprite;
 	  
 		override public function create():void {
-/*      FlxG.showBounds = true;*/
+      FlxG.showBounds = true;
 
       //the ground
       t = new FlxTileblock(0, FlxG.height-24, FlxG.width*2, 24);

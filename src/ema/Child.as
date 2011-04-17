@@ -2,25 +2,24 @@ package ema {
 	import org.flixel.*;
 	import ema.utils.Log;
 	
-	public class Child extends FlxSprite {
+	public class Child extends GameSprite {
 	  protected var mom:Mother;
 	  protected var maxRadius:FlxPoint;
 	  protected var minRadius:FlxPoint;
 	  [Embed(source="sprites/baby/babyStripg.png")] private var BabyStrip:Class
 	  
 	  public function Child(X:Number, Y:Number, mother:Mother, c:uint) {
-	    super(X,Y,null);
+	    super(X,Y);
 	    loadGraphic(BabyStrip, true, false, 80, 75);
 	    
-/*      color = 0xAAAAFF;*/
 	    maxVelocity.x = Math.random() * 20 + 80;			//walking speed
       acceleration.y = 400;			//gravity
       drag.x = maxVelocity.x*2;		//deceleration (sliding to a stop)
       mom = mother;
       color = c;
-      maxRadius = new FlxPoint(75, 1);  //point at which you run to catch up w/ mom
+      maxRadius = new FlxPoint(75, 50);  //point at which you run to catch up w/ mom
       minRadius = new FlxPoint(10, 0);
-      //todo! //.setColorTransform for parent displayObject 
+
       //800x400
       addAnimation("idle", spriteArray(13, 25), 24, true);
       addAnimation("walk", spriteArray(2,12), 24, true);
@@ -28,18 +27,6 @@ package ema {
       addAnimation("attack", spriteArray(47,54), 24, false);
       addAnimation("grabbed", spriteArray(56,60), 24, false);
       addAnimation("ungrabbed", [60,59,58,57,56], 24, false);
-    }
-    
-    protected function spriteArray(start:Number, end:Number):Array {
-      var result:Array = new Array();
-      var i:Number = start;
-
-      while (i != end) {
-        result.push(i);
-        i++;
-      }
-      
-      return result;
     }
     
     override public function update():void {
@@ -65,8 +52,11 @@ package ema {
       
       //jump
       if(onFloor && (y - mom.y) > maxRadius.y) {
-        play("jump");
         velocity.y = -acceleration.y*0.35;
+      }
+      
+      if (velocity.y < 0) {
+        play("jump");
       }
       
       if (velocity.x > 0) {
