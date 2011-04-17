@@ -4,6 +4,5 @@ use the FACING attr
 use new bg assets
 make ground invisy (or grass bb short)
 
-mom and baby should inherit from a generic actor
 baby should prob stop using accel
 collisions should use FlxGroups

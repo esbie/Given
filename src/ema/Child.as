@@ -59,12 +59,7 @@ package ema {
         play("jump");
       }
       
-      if (velocity.x > 0) {
-        scale = new FlxPoint(-1,1);
-      } else {
-        scale = new FlxPoint(1,1);
-      }
-      
+      updateFacing();
       super.update();
       
       //bounds

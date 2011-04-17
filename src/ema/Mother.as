@@ -23,7 +23,6 @@ package ema {
     }
     
     override public function update():void {
-
       acceleration.x = 0;
       
       if(FlxG.keys.LEFT) {
@@ -48,11 +47,7 @@ package ema {
         play("idle");
       }
       
-      if (velocity.x > 0) {
-        scale = new FlxPoint(-1,1);
-      } else if (velocity.x < 0){
-        scale = new FlxPoint(1,1);
-      }
+      updateFacing();
       
       super.update();
       
