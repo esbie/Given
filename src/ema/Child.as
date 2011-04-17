@@ -17,7 +17,7 @@ package ema {
       drag.x = maxVelocity.x*2;		//deceleration (sliding to a stop)
       mom = mother;
       color = c;
-      maxRadius = new FlxPoint(75, 50);  //point at which you run to catch up w/ mom
+      maxRadius = new FlxPoint(75, 100);  //point at which you run to catch up w/ mom
       minRadius = new FlxPoint(10, 0);
 
       //800x400

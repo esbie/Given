@@ -2,10 +2,10 @@ package ema {
   import org.flixel.*;
   import ema.utils.Log;
 
-  [SWF(width="640", height="480", backgroundColor="#000000")]
+  [SWF(width="800", height="400", backgroundColor="#000000")]
   public class Main extends FlxGame {
     public function Main() {
-      super(640,480,PlayState,1);
+      super(800,400,PlayState,1);
     }
   }
 }
