@@ -20,6 +20,12 @@ package ema {
       addAnimation("attack", spriteArray(120,141), 24, false);
       addAnimation("jump", spriteArray(47,68), 24, false);
       addAnimation("pickup", spriteArray(142,150), 24, false);
+      
+      //getting the bounding box perfect
+      width = 127;
+      height = 70;
+      offset.x = 5;
+      offset.y = 70;
     }
     
     override public function update():void {

@@ -1,6 +1,5 @@
 fix bounding boxes
 for some reason one shot anims aren't working
-use the FACING attr
 use new bg assets
 make ground invisy (or grass bb short)
 

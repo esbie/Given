@@ -27,6 +27,12 @@ package ema {
       addAnimation("attack", spriteArray(47,54), 24, false);
       addAnimation("grabbed", spriteArray(56,60), 24, false);
       addAnimation("ungrabbed", [60,59,58,57,56], 24, false);
+      
+      //getting the bounding box perfect
+      width = 44;
+      height = 27;
+      offset.x = 18;
+      offset.y = 48;
     }
     
     override public function update():void {
