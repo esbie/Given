@@ -14,7 +14,7 @@ package ema {
 	    
 	    maxVelocity.x = Math.random() * 20 + 80;			//walking speed
       acceleration.y = 400;			//gravity
-      drag.x = maxVelocity.x*2;		//deceleration (sliding to a stop)
+      drag.x = maxVelocity.x*4;		//deceleration (sliding to a stop)
       mom = mother;
       color = c;
       maxRadius = new FlxPoint(75, 100);  //point at which you run to catch up w/ mom
@@ -43,26 +43,25 @@ package ema {
       var linearAccel:Number = xFromMom / maxRadius.x;
       
       //cap linear x acceleration at 1
-      if(linearAccel > 1) {
-        play("walk");
-        acceleration.x += baseAccel*direct;
-      } else if (xFromMom < minRadius.x) {
-        play("idle");
-        acceleration.x = 0; //todo this is superfluous
-      }else {
-        play("walk");
-        //exponential acceleration inbetween the maxRadius and the minRadius
-        var expAccel:Number = Math.pow(linearAccel,4);
-        acceleration.x += baseAccel*expAccel*direct;
+      if (onFloor) {
+        if(linearAccel > 1) {
+          play("walk");
+          acceleration.x += baseAccel*direct;
+        } else if (xFromMom < minRadius.x) {
+          play("idle");
+          acceleration.x = 0; //todo this is superfluous
+        }else {
+          play("walk");
+          //exponential acceleration inbetween the maxRadius and the minRadius
+          var expAccel:Number = Math.pow(linearAccel,4);
+          acceleration.x += baseAccel*expAccel*direct;
+        }
       }
       
       //jump
-      if(onFloor && (y - mom.y) > maxRadius.y) {
+      if (onFloor && mom.currentState == "jump" && Math.random() < 0.05) {
         velocity.y = -acceleration.y*0.35;
-      }
-      
-      if (velocity.y < 0) {
-        play("jump");
+        play("jump", true);
       }
       
       updateFacing();

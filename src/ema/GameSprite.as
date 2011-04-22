@@ -8,6 +8,8 @@ package ema {
       super(X,Y);
     }
     
+    public var currentState:String;
+    
     //making these class variables so we aren't making new point objects on every update
     //these assume that asset is facing to the left
     protected var scaleLeft:FlxPoint = new FlxPoint(1,1);

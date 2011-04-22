@@ -1,7 +1,6 @@
 fix bounding boxes
-for some reason one shot anims aren't working
 use new bg assets
 make ground invisy (or grass bb short)
-
-baby should prob stop using accel
 collisions should use FlxGroups
+
+baby jump starts out too slow
