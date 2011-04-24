@@ -36,6 +36,17 @@ package ema {
       
       return result;
     }
+
+    override public function update():void {
+      super.update();
+      
+      //bounds o' the world
+      if(x > FlxG.width*2-width-4) {
+        x = FlxG.width*2-width-4;
+      } else if(x < 4) {
+        x = 4;
+      }
+    }
   
   }
 }

@@ -3,4 +3,6 @@ use new bg assets
 make ground invisy (or grass bb short)
 collisions should use FlxGroups
 
-baby jump starts out too slow
+pick up baby!
+implement baby learning (need an exclamation mark)
+figure out various personality quirks

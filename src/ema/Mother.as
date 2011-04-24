@@ -75,14 +75,6 @@ package ema {
 
       updateFacing();  
       super.update();
-      
-      //bounds
-      if(x > FlxG.width*2-width-4) {
-        x = FlxG.width*2-width-4;
-      } else if(x < 4) {
-        x = 4;
-      }
-              
     }
   }
 }
