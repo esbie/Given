@@ -62,7 +62,9 @@ package ema {
         }
         if(mom.currentState == "jump" && Math.random() < 0.05) {
           play("readyJump", true);
-        } 
+        } else if(mom.currentState == "attack" && Math.random() < 0.05) {
+          play("attack", true);
+        }
       }
       
       applyBoundingBox(currentState);
