@@ -21,7 +21,6 @@ package ema {
       maxRadius = new FlxPoint(75, 100);  //point at which you run to catch up w/ mom
       minRadius = new FlxPoint(10, 0);
 
-      //800x400
       addAnimation("idle", spriteArray(13, 25), 24, true);
       addAnimation("walk", spriteArray(2,12), 24, true);
       addAnimation("readyJump", spriteArray(26,32), 24, false)
@@ -31,11 +30,15 @@ package ema {
       addAnimation("ungrabbed", [60,59,58,57,56], 24, false);
       addAnimationCallback(animTransitions);
       
-      //getting the bounding box perfect
-      width = 44;
-      height = 27;
-      offset.x = 18;
-      offset.y = 48;
+      addBoundingBox("idle", 18, 48, 44, 27);
+      addBoundingBox("walk", 14, 45, 51, 30);
+      addBoundingBox("readyJump", 13, 45, 67, 30);
+      addBoundingBox("jump", 18, 0, 44, 75);
+      addBoundingBox("attack", 18, 27, 49, 48);
+      addBoundingBox("grabbed", 18, 31, 44, 43);
+      addBoundingBox("ungrabbed", 18, 31, 44, 43);
+      
+      applyBoundingBox("idle");
     }
     
     protected function animTransitions(name:String, frameNumber:uint, frameIndex:uint):void {
@@ -61,6 +64,8 @@ package ema {
           play("readyJump", true);
         } 
       }
+      
+      applyBoundingBox(currentState);
     }
     
     override public function update():void {

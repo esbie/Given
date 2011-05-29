@@ -33,6 +33,8 @@ package ema {
       currentState = name;
       if (name == "idleWalk" && frameNumber == 2) {
         play("walk");
+      } else if (name == "attack" && frameNumber == 20) {
+        play("idle");
       }
     }
     
@@ -45,9 +47,11 @@ package ema {
             play("walk");
           }
         } 
-        if (FlxG.keys.justPressed("SPACE")) {
+        if (FlxG.keys.justPressed("UP")) {
           play("jump", true);
-        } else if (velocity.x == 0){
+        } else if (FlxG.keys.justPressed("SPACE")) {
+          play("attack", true);
+        } else if (velocity.x == 0 && currentState != "attack"){
           play("idle");
         }
       }
@@ -58,17 +62,19 @@ package ema {
       
       playAnim();
       
-      if(FlxG.keys.LEFT) {
-        acceleration.x -= drag.x*2;
-      }
+      if(currentState != "attack") {
+        if(FlxG.keys.LEFT) {
+          acceleration.x -= drag.x*2;
+        }
       
-      if(FlxG.keys.RIGHT) {
-        acceleration.x += drag.x*2;
+        if(FlxG.keys.RIGHT) {
+          acceleration.x += drag.x*2;
+        }
       }
       
       //jump
       if(onFloor) {
-        if(FlxG.keys.justPressed("SPACE")) {
+        if(FlxG.keys.justPressed("UP")) {
           velocity.y = -acceleration.y*0.40;
         }
       }
