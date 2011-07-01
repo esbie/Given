@@ -1,17 +1,38 @@
 package ema {
   import org.flixel.*;
   import ema.utils.Log;
+  import flash.events.*;
   
-  public class GameSprite extends FlxSprite {
+  public class GameSprite extends FlxSprite implements IEventDispatcher {
+    public var currentState:String;
+    protected var boundingBoxes:Object;
+    protected var dispatcher:EventDispatcher;
     
     public function GameSprite(X:Number, Y:Number) {
+      dispatcher = new EventDispatcher();
       boundingBoxes = {};
       super(X,Y);
     }
     
-    public var currentState:String;
+    public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void {
+      return dispatcher.addEventListener(type, listener, useCapture, priority, useWeakReference);
+    }
     
-    protected var boundingBoxes:Object;
+    public function dispatchEvent(event:Event):Boolean {
+     return dispatcher.dispatchEvent(event);
+    }
+    
+    public function hasEventListener(type:String):Boolean {
+      return dispatcher.hasEventListener(type);
+    }
+    
+    public function removeEventListener(type:String, listener:Function, useCapture:Boolean = false):void {
+      return dispatcher.removeEventListener(type, listener, useCapture);
+    }
+    
+    public function willTrigger(type:String):Boolean {
+      return dispatcher.willTrigger(type);
+    }
     
     protected function addBoundingBox(name:String, X:Number, Y:Number, W:Number, H:Number):void {
       boundingBoxes[name] = {
@@ -66,8 +87,8 @@ package ema {
       super.update();
       
       //bounds o' the world
-      if(x > FlxG.width*2-width-4) {
-        x = FlxG.width*2-width-4;
+      if(x > FlxG.width*4-width-4) {
+        x = FlxG.width*4-width-4;
       } else if(x < 4) {
         x = 4;
       }

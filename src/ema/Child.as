@@ -1,8 +1,13 @@
 package ema {
 	import org.flixel.*;
 	import ema.utils.Log;
+	import flash.utils.*;
+	import flash.events.Event;
 	
 	public class Child extends GameSprite {
+	  
+	  public var isGrabbed:Boolean = false;
+	  
 	  protected var mom:Mother;
 	  protected var skills:Object = {};
 	  protected var maxRadius:FlxPoint;
@@ -28,6 +33,8 @@ package ema {
       addAnimation("attack", spriteArray(47,54), 24, false);
       addAnimation("grabbed", spriteArray(56,60), 24, false);
       addAnimation("ungrabbed", [60,59,58,57,56], 24, false);
+      addAnimation("bouncing", spriteArray(60,68), 10, true);
+      addAnimation("held", [64]);
       addAnimationCallback(animTransitions);
       
       addBoundingBox("idle", 18, 48, 44, 27);
@@ -37,36 +44,61 @@ package ema {
       addBoundingBox("attack", 18, 27, 49, 48);
       addBoundingBox("grabbed", 18, 31, 44, 43);
       addBoundingBox("ungrabbed", 18, 31, 44, 43);
+      addBoundingBox("bouncing", 17, 28, 29, 40);
+      addBoundingBox("held", 17, 28, 29, 40);
       
       applyBoundingBox("idle");
+      
+      mom.addEventListener("pickup", onMomPickup);
+      mom.addEventListener("jump", onMomJump);
+      mom.addEventListener("attack", onMomAttack);
+    }
+    
+    public function isWithinLearningDistance():Boolean {
+      return Math.abs(mom.x - x) < 400;
     }
     
     protected function animTransitions(name:String, frameNumber:uint, frameIndex:uint):void {
       currentState = name;
       
-      //some roundabout logic to delay the baby jumps
-      if (name == "readyJump" && frameNumber == 5) {
-        velocity.y = -acceleration.y*0.35;
-        play("jump", true);
-      } else if (name == "jump" && frameNumber == 13) {
-        play("idle");
+      if (finished) {
+        //some roundabout logic to delay the baby jumps
+        if (name == "readyJump") {
+          velocity.y = -acceleration.y*0.35;
+          play("jump", true);
+        } else if (name == "jump" || name == "attack" || name == "ungrabbed") {
+          play("idle");
+        } else if(name == "grabbed") {
+          play("bouncing");
+        }
       }
     }
     
+    protected function currentlyBusy():Boolean {
+      return isGrabbed || currentState == "jump" || currentState == "readyJump" || currentState == "attack";
+    }
+    
     protected function playAnim():void {
-      if (currentState != "jump" && currentState != "readyJump") {
-        if (velocity.x == 0) {
-          play("idle");
+      if (isGrabbed) {
+        if (mom.currentState == "walk") {
+          play("bouncing");
         } else {
-          play("walk");
+          play("held", true);
         }
-        if(mom.currentState == "jump" && Math.random() < 0.05) {
-          play("readyJump", true);
-        } else if(mom.currentState == "attack" && Math.random() < 0.05) {
-          play("attack", true);
+      } else {
+        if (!currentlyBusy()) {
+          if (velocity.x == 0) {
+            play("idle");
+          } else {
+            play("walk");
+          }
+          if(hasLearned("jump") && Math.random() < 0.005) {
+            play("readyJump", true);
+          } else if(mom.currentState == "attack" && Math.random() < 0.03) {
+            play("attack", true);
+          }
         }
       }
-      
       applyBoundingBox(currentState);
     }
     
@@ -74,26 +106,91 @@ package ema {
       playAnim();
       
       acceleration.x = 0;
-      var baseAccel:Number = drag.x*2;
-      var direct:Number = mom.x > x ? 1 : -1;
-      var xFromMom:Number = Math.abs(mom.x - x);
-      var linearAccel:Number = xFromMom / maxRadius.x;
       
-      //cap linear x acceleration at 1
-      if (onFloor) {
-        if(linearAccel > 1) {
-          acceleration.x += baseAccel*direct;
-        } else if (xFromMom < minRadius.x) {
-          acceleration.x = 0; //todo this is superfluous
-        }else {
-          //exponential acceleration inbetween the maxRadius and the minRadius
-          var expAccel:Number = Math.pow(linearAccel,4);
-          acceleration.x += baseAccel*expAccel*direct;
+      if (isGrabbed) {
+        var mouthLocation:FlxPoint = mom.mouthLocation();
+        x = mouthLocation.x - 30;
+        y = mouthLocation.y - 10;
+      } else {
+        var baseAccel:Number = drag.x*2;
+        var direct:Number = mom.x > x ? 1 : -1;
+        var xFromMom:Number = Math.abs(mom.x - x);
+        var linearAccel:Number = xFromMom / maxRadius.x;
+      
+        //cap linear x acceleration at 1
+        if (onFloor && currentState != "attack") {
+          if(linearAccel > 1) {
+            acceleration.x += baseAccel*direct;
+          } else if (xFromMom < minRadius.x) {
+            acceleration.x = 0; //todo this is superfluous
+          }else {
+            //exponential acceleration inbetween the maxRadius and the minRadius
+            var expAccel:Number = Math.pow(linearAccel,4);
+            acceleration.x += baseAccel*expAccel*direct;
+          }
         }
       }
       
       updateFacing();
       super.update();
+    }
+    
+    public function onMomPickup(event:Event):void {
+      if (!mom.hasChildInMouth()) {
+        var mouthLocation:FlxPoint = mom.mouthLocation();
+        
+        //distance formula
+        var XX:Number = mouthLocation.x - x;
+      	var YY:Number = mouthLocation.y - y;
+      	var distance:Number =  Math.sqrt( XX * XX + YY * YY );
+      	
+      	if (distance < 75) {
+      	  mom.pickupChild(this);
+          isGrabbed = true;
+          play("held", true);
+          
+          //babys are weightless!
+          acceleration.y = 0;
+      	}
+      }
+    }
+    
+    public function drop():void {
+      isGrabbed = false
+      play("ungrabbed", true);
+      
+      acceleration.y = 400;
+    }
+    
+    public function hasLearned(skill:String):Boolean {
+      return skills[skill] == 4;
+    }
+    
+    public function genericLearning(s:String, anim:String, animRestart:Boolean=false):void {
+      if (isWithinLearningDistance()) {
+        if (!hasLearned(s)) {
+          if (!skills[s]) {
+            skills[s] = 0;
+          }
+          
+          //it takes time to learn!
+          setTimeout(function():void{
+            if (!currentlyBusy()) {
+              skills[s] += 1;
+              Log.out("I gained a learn point!"+ skills[s]);
+              play(anim, animRestart);
+            }
+          }, (Math.random() * 200 + 100));
+        }
+      }
+    }
+    
+    public function onMomJump(event:Event):void {
+      genericLearning("jump", "readyJump", true);
+    }
+    
+    public function onMomAttack(event:Event):void {
+      genericLearning("attack", "attack");
     }
   }
 }
