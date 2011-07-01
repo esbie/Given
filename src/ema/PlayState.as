@@ -15,7 +15,8 @@ package ema {
 	  protected var player:Mother;
 	  protected var secondChild:Child;
 	  protected var onlyChild:Child;
-	  protected var monster:Monster;
+	  protected var childPile:FlxGroup;
+    protected var monsterPile:FlxGroup;
 	  protected var t:FlxTileblock;
 	  
 	  protected var bg:FlxSprite;
@@ -52,11 +53,15 @@ package ema {
       player = new Mother(FlxG.width/2-6, FlxG.height-250);
       onlyChild = new Child(FlxG.width/2-50, FlxG.height-250, player, 0xCFFFEF); //MINT
       secondChild = new Child(FlxG.width/2+10, FlxG.height-250, player, 0xCFD0FF); //PERIWINKLE
+      childPile = new FlxGroup();
+      childPile.add(onlyChild);
+      childPile.add(secondChild);
       
       debug = player.mouthDebug;
       
       //monsters
-      monster = new Monster(200,200, "small");
+      monsterPile = new FlxGroup();
+      monsterPile.add(new Monster(200,200, "small"));
       
       //camera controls
       FlxG.follow(player);
@@ -70,12 +75,11 @@ package ema {
       add(t);
       add(cover);
       add(player);
-      add(onlyChild);
-      add(secondChild);
+      add(childPile);
       
       add(debug);
       
-      add(monster);
+      add(monsterPile);
 		}
 		
 		override public function update():void {
@@ -86,7 +90,9 @@ package ema {
       FlxU.collide(onlyChild, t);
       FlxU.collide(secondChild, t);
       
-      if (monster.exists && player.overlaps(monster) && player.currentState == "attack") {
+      var monster:Monster = Monster(monsterPile.getFirstAlive());
+      
+      if (monster && player.overlaps(monster) && player.currentState == "attack") {
         monster.scale = new FlxPoint(monster.scale.x * 0.5, monster.scale.x * 0.5);
         if (monster.scale.x < 0.01) {
           monster.kill();

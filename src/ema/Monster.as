@@ -22,16 +22,20 @@ package ema {
           scale = SMALL;
           width = frameWidth*0.3;
           height = frameHeight*0.3;
+          maxVelocity.x -= 20;
         break;
         case "medium":
           scale = MEDIUM;
           width = frameWidth*0.6;
           height = frameHeight*0.6;
+          maxVelocity.x -=10;
         break;
         case "large":
           scale = LARGE;
         break;
       }
+      
+      velocity.x = maxVelocity.x;
       
       //bounding box
 /*      width = 130;
@@ -40,11 +44,16 @@ package ema {
       offset.y = 16;*/
     }
     
+    protected function freeWill():void {
+      //switch directions
+      if (Math.random() < 0.001) {
+        velocity.x = velocity.x * -1;
+      }
+    }
+    
     override public function update():void {
       play('wander');
-      acceleration.x = Math.random() * 100 - 50;
-      acceleration.y = Math.random() * 100 - 50;
-
+      freeWill();
       super.update();
     }
   }
