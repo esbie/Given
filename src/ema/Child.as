@@ -138,13 +138,8 @@ package ema {
     public function onMomPickup(event:Event):void {
       if (!mom.hasChildInMouth()) {
         var mouthLocation:FlxPoint = mom.mouthLocation();
-        
-        //distance formula
-        var XX:Number = mouthLocation.x - x;
-      	var YY:Number = mouthLocation.y - y;
-      	var distance:Number =  Math.sqrt( XX * XX + YY * YY );
       	
-      	if (distance < 75) {
+      	if (distance(mouthLocation) < 75) {
       	  mom.pickupChild(this);
           isGrabbed = true;
           play("held", true);

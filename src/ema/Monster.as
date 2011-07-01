@@ -8,9 +8,12 @@ package ema {
 	  public static const SMALL:FlxPoint = new FlxPoint(0.3,0.3);
 	  public static const MEDIUM:FlxPoint = new FlxPoint(0.6,0.6);
 	  public static const LARGE:FlxPoint = new FlxPoint(1,1);
+	  
+	  private var childPile:FlxGroup;
 	  	  
-	  public function Monster(X:Number, Y:Number, size:String) {
+	  public function Monster(X:Number, Y:Number, size:String, cp:FlxGroup) {
 	    super(X,Y);
+	    childPile = cp;
 	    loadGraphic(MonsterStrip, true, false, 157, 178);
       addAnimation("wander", spriteArray(1, 35), 24, true);
       addAnimation("hungry", spriteArray(1, 35), 24, true);
@@ -51,9 +54,18 @@ package ema {
       }
     }
     
+    protected function findNearbyFood():void {
+      for each (var child:FlxObject in childPile.members) {
+        if (distance(child) < 300) {
+          Log.out("found a snack!");
+        }
+      }
+    }
+    
     override public function update():void {
       play('wander');
       freeWill();
+      findNearbyFood();
       super.update();
     }
   }

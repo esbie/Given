@@ -61,7 +61,7 @@ package ema {
       
       //monsters
       monsterPile = new FlxGroup();
-      monsterPile.add(new Monster(200,200, "small"));
+      monsterPile.add(new Monster(200,200, "small", childPile));
       
       //camera controls
       FlxG.follow(player);

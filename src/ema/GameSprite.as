@@ -14,6 +14,12 @@ package ema {
       super(X,Y);
     }
     
+    public function distance(P1:FlxPoint):Number{
+    	var XX:Number = x - P1.x;
+    	var YY:Number = y - P1.y;
+    	return Math.sqrt( XX * XX + YY * YY );
+    }
+    
     public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void {
       return dispatcher.addEventListener(type, listener, useCapture, priority, useWeakReference);
     }
