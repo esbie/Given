@@ -26,7 +26,6 @@ package ema {
     }
     
     public function onChildLearn(event:Event):void {
-      Log.out("learn event fired");
       active = true;
       visible = true;
       setTimeout(function():void{

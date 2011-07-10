@@ -29,7 +29,8 @@ package ema {
 	  protected var secondChild:Child;
 	  protected var onlyChild:Child;
 	  protected var childPile:FlxGroup;
-    protected var monsterPile:FlxGroup;
+	  protected var monsterPile:FlxGroup;
+/*    static public var monsterPile:FlxGroup;*/
 	  protected var t:FlxTileblock;
 	  
 	  protected var bg:FlxSprite;

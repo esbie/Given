@@ -6,8 +6,23 @@ package ema {
 	
 	public class Child extends GameSprite {
 	  
-	  public var isGrabbed:Boolean = false;
     public var learnEvent:Event = new Event("learn");
+	  public var aiBox:Object = {
+	    "followMom": {
+	      "priority" : 1,
+	      "anims": ["idle", "walk", "jump", "attack"]
+	    },
+	    "pickedUpByMom": {
+	      "priority" : 5,
+	      "anims": ["grabbed", "ungrabbed", "held", "bouncing"]
+	    },
+	    "shudder": {
+	      "priority" : 4,
+	      "anims": ["shudder"]
+	    }
+	  };
+	  
+	  public var currentai:String = "pickedUpByMom";
 	  
 	  protected var mom:Mother;
 	  protected var skills:Object = {};
@@ -36,6 +51,7 @@ package ema {
       addAnimation("ungrabbed", [60,59,58,57,56], 24, false);
       addAnimation("bouncing", spriteArray(60,68), 10, true);
       addAnimation("held", [64]);
+      addAnimation("shudder", [2]);
       addAnimationCallback(animTransitions);
       
       addBoundingBox("idle", 18, 48, 44, 27);
@@ -47,12 +63,15 @@ package ema {
       addBoundingBox("ungrabbed", 18, 31, 44, 43);
       addBoundingBox("bouncing", 17, 28, 29, 40);
       addBoundingBox("held", 17, 28, 29, 40);
+      addBoundingBox("shudder", 18, 48, 44, 27);
       
       applyBoundingBox("idle");
       
       mom.addEventListener("pickup", onMomPickup);
       mom.addEventListener("jump", onMomJump);
       mom.addEventListener("attack", onMomAttack);
+      
+      currentai = "followMom";
     }
     
     public function isWithinLearningDistance():Boolean {
@@ -76,11 +95,11 @@ package ema {
     }
     
     protected function currentlyBusy():Boolean {
-      return isGrabbed || currentState == "jump" || currentState == "readyJump" || currentState == "attack";
+      return currentai == "pickedUpByMom" || currentState == "jump" || currentState == "readyJump" || currentState == "attack";
     }
     
     protected function playAnim():void {
-      if (isGrabbed) {
+      if (currentai == "pickedUpByMom") {
         if (mom.currentState == "walk") {
           play("bouncing");
         } else {
@@ -108,7 +127,7 @@ package ema {
       
       acceleration.x = 0;
       
-      if (isGrabbed) {
+      if (currentai == "pickedUpByMom") {
         var mouthLocation:FlxPoint = mom.mouthLocation();
         if (facing == LEFT) {
           x = mouthLocation.x - 12;
@@ -134,6 +153,14 @@ package ema {
             acceleration.x += baseAccel*expAccel*direct;
           }
         }
+        
+/*        var nearestMonster:FlxSprite = findClosestSprite(FlxG.state.monsterPile);
+        if (distance(nearestMonster) < 400) {
+          Log.out("shuddering");
+          currentai = "shudder";
+          play("shudder");
+        }
+*/        
       }
       
       updateFacing();
@@ -147,7 +174,7 @@ package ema {
       	
       	if (distance(mouthLocation) < 75) {
       	  mom.pickupChild(this);
-          isGrabbed = true;
+      	  currentai = "pickedUpByMom";
           play("held", true);
           
           //babys are weightless!
@@ -157,7 +184,7 @@ package ema {
     }
     
     public function drop():void {
-      isGrabbed = false
+      currentai = "followMom";
       play("ungrabbed", true);
       
       acceleration.y = 400;

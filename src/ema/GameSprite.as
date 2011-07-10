@@ -101,6 +101,19 @@ package ema {
         x = 4;
       }
     }
+    
+    protected function findClosestSprite(pile:FlxGroup):FlxSprite {
+      var minDist:Number = 18000;
+      var minChild:FlxSprite;
+      for each (var child:FlxSprite in pile.members) {
+        var dist:Number = distance(child);
+        if (dist < minDist) {
+          minDist = dist;
+          minChild = child;
+        }
+      }
+      return minChild;
+    }
   
   }
 }
