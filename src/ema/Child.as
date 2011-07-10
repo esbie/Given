@@ -154,13 +154,13 @@ package ema {
           }
         }
         
-/*        var nearestMonster:FlxSprite = findClosestSprite(FlxG.state.monsterPile);
+        var nearestMonster:FlxSprite = findClosestSprite(FlxG.state().monsterPile);
         if (distance(nearestMonster) < 400) {
           Log.out("shuddering");
           currentai = "shudder";
           play("shudder");
         }
-*/        
+        
       }
       
       updateFacing();
