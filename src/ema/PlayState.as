@@ -1,4 +1,5 @@
 package ema {
+	import flash.utils.*;
 	import org.flixel.*;
 	import ema.utils.Log;
  
@@ -10,8 +11,20 @@ package ema {
     [Embed(source="sprites/hill2.png")] private var Hill2:Class;
     [Embed(source="sprites/hill3.png")] private var Hill3:Class;
     [Embed(source="sprites/hill4.png")] private var Hill4:Class;
+    
+    [Embed(source="sprites/tree1.png")] private var Tree1:Class;
+    [Embed(source="sprites/tree2.png")] private var Tree2:Class;
+    [Embed(source="sprites/tree3.png")] private var Tree3:Class;
+    [Embed(source="sprites/tree4.png")] private var Tree4:Class;
+    [Embed(source="sprites/tree5.png")] private var Tree5:Class;
+  
     [Embed(source="sprites/grassG.png")] private var GrassTiles:Class;
     [Embed(source="sprites/bgG.png")] private var BGTiles:Class;
+    
+    [Embed(source="sprites/cave.png")] private var Cave:Class;
+    [Embed(source="sprites/nest.png")] private var Nest:Class;
+    [Embed(source="sprites/title.png")] private var Title:Class;
+    
 	  protected var player:Mother;
 	  protected var secondChild:Child;
 	  protected var onlyChild:Child;
@@ -27,14 +40,11 @@ package ema {
 		override public function create():void {
       FlxG.showBounds = true;
 
-      //the ground
-      t = new FlxTileblock(0, FlxG.height-20, FlxG.width*4, 24);
+      //the invisi ground
+      t = new FlxTileblock(0, FlxG.height-40, FlxG.width*4, 24);
       t.loadGraphic(ImgTiles);
-
-      var cover:FlxBackdrop = new FlxBackdrop(TilesCover, 1, 1, true, false);
-      cover.y = FlxG.height - 30
       
-      //the pretty ground
+      //the rolling hills ground
       var hill1:FlxSprite = new FlxSprite(0,  FlxG.height - 118, Hill1);
       hill1.scrollFactor = new FlxPoint(0.7,0.7);
       var hill2:FlxSprite = new FlxSprite(800, FlxG.height - 195, Hill2);
@@ -50,18 +60,26 @@ package ema {
       bg.scrollFactor = new FlxPoint(0,0);
       
       //actors
-      player = new Mother(FlxG.width/2-6, FlxG.height-250);
+      player = new Mother(275, FlxG.height-250);
       onlyChild = new Child(FlxG.width/2-50, FlxG.height-250, player, 0xCFFFEF); //MINT
       secondChild = new Child(FlxG.width/2+10, FlxG.height-250, player, 0xCFD0FF); //PERIWINKLE
       childPile = new FlxGroup();
       childPile.add(onlyChild);
       childPile.add(secondChild);
       
+      //title page
+      var cave:FlxBackdrop = new FlxBackdrop(Cave, 1, 1, false, false);
+      var nest:FlxBackdrop = new FlxBackdrop(Nest, 1, 1, false, false);
+      var title:FlxBackdrop = new FlxBackdrop(Title, 1, 1, false, false);
+      title.x = 450;
+      title.y = 50;
+      nest.x = 30;
+      nest.y = 330;
+      
       debug = player.mouthDebug;
       
       //monsters
-      monsterPile = new FlxGroup();
-      monsterPile.add(new Monster(200,200, "small", childPile));
+      monsterPile = monsterSpawner();
       
       //camera controls
       FlxG.follow(player);
@@ -72,14 +90,77 @@ package ema {
       add(hill2);
       add(hill3);
       add(hill4);
+      
+      add(cave);
+      add(treeSpawner(320));
+      
       add(t);
-      add(cover);
       add(player);
       add(childPile);
+      add(nest);
       
       add(debug);
       
       add(monsterPile);
+      add(treeSpawner(360));
+      add(title);
+      add(new ExPoint(onlyChild));
+      add(new ExPoint(secondChild));
+		}
+		
+		public function treeSpawner(starterHeight:Number):FlxGroup {
+		 var treePile:FlxGroup = new FlxGroup();
+		 
+		 for (var i:Number = 0; i < 5; i++) {
+		   var embed:Class;
+		   var num:Number = Math.floor(Math.random() * 5);
+       switch(num) {
+         case 0: embed = Tree1;
+         break;
+         case 1: embed = Tree2;
+         break;
+         case 2: embed = Tree3;
+         break;
+         case 3: embed = Tree4;
+         break;
+         case 4: embed = Tree5;
+         break;
+       }
+       var tree:FlxSprite = new FlxSprite(Math.random() * 2000 + 600, Math.random() * 40 + starterHeight, embed);
+       tree.y -= tree.height;
+       tree.scrollFactor = new FlxPoint(0.7,0.7);
+       if (Math.random() < 0.5) {
+         tree.scale = new FlxPoint(-1,1);
+       }
+       treePile.add(tree);
+		 }
+		 
+		 return treePile;
+		}
+		
+		public function monsterSpawner():FlxGroup {
+		  var monsterPile:FlxGroup = new FlxGroup();
+		  
+		  setInterval(function():void{
+		    var size:String;
+
+        var i:Number = Math.round(Math.random() * 5);
+        switch(i % 5) {
+          case 0: size = "xsmall";
+          break;
+          case 1: size = "small";
+          break;
+          case 2: size = "medium";
+          break;
+          case 3: size = "large";
+          break;
+          case 4: size = "xlarge";
+          break;
+        }
+        monsterPile.add(new Monster(Math.random() * 800, Math.random() * 400, size, childPile));
+		  }, 5000);
+      
+      return monsterPile;
 		}
 		
 		override public function update():void {
@@ -90,13 +171,15 @@ package ema {
       FlxU.collide(onlyChild, t);
       FlxU.collide(secondChild, t);
       
-      var monster:Monster = Monster(monsterPile.getFirstAlive());
-      
-      if (monster && player.overlaps(monster) && player.currentState == "attack") {
-        monster.scale = new FlxPoint(monster.scale.x * 0.5, monster.scale.x * 0.5);
-        if (monster.scale.x < 0.01) {
-          monster.kill();
-          player.dispatchEvent(player.attackEvent);
+      if (player.currentState == "attack") {
+        for each (var monster:Monster in monsterPile.members) {
+          if (monster.exists && monster.onScreen() && player.overlaps(monster)) {
+            monster.scale = new FlxPoint(monster.scale.x * 0.5, monster.scale.x * 0.5);
+            if (monster.scale.x < 0.01) {
+              monster.kill();
+              player.dispatchEvent(player.attackEvent);
+            }
+          }
         }
       }
 		}

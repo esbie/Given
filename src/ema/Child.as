@@ -7,6 +7,7 @@ package ema {
 	public class Child extends GameSprite {
 	  
 	  public var isGrabbed:Boolean = false;
+    public var learnEvent:Event = new Event("learn");
 	  
 	  protected var mom:Mother;
 	  protected var skills:Object = {};
@@ -18,7 +19,7 @@ package ema {
 	    super(X,Y);
 	    loadGraphic(BabyStrip, true, false, 80, 75);
 	    
-	    maxVelocity.x = Math.random() * 20 + 80;			//walking speed
+	    maxVelocity.x = Math.random() * 20 + 100;			//walking speed
       acceleration.y = 400;			//gravity
       drag.x = maxVelocity.x*4;		//deceleration (sliding to a stop)
       mom = mother;
@@ -109,8 +110,12 @@ package ema {
       
       if (isGrabbed) {
         var mouthLocation:FlxPoint = mom.mouthLocation();
-        x = mouthLocation.x - 30;
-        y = mouthLocation.y - 10;
+        if (facing == LEFT) {
+          x = mouthLocation.x - 12;
+        } else {
+          x = mouthLocation.x - 30;
+        }
+        y = mouthLocation.y - 7;
       } else {
         var baseAccel:Number = drag.x*2;
         var direct:Number = mom.x > x ? 1 : -1;
@@ -133,6 +138,7 @@ package ema {
       
       updateFacing();
       super.update();
+      bounded();
     }
     
     public function onMomPickup(event:Event):void {
@@ -167,13 +173,13 @@ package ema {
           if (!skills[s]) {
             skills[s] = 0;
           }
-          
+
           //it takes time to learn!
           setTimeout(function():void{
             if (!currentlyBusy()) {
-              skills[s] += 1;
+              skills[s] += 1;;
+              dispatchEvent(learnEvent);
               Log.out("I gained a learn point!"+ skills[s]);
-              play(anim, animRestart);
             }
           }, (Math.random() * 200 + 100));
         }

@@ -70,10 +70,10 @@ package ema {
     protected function updateFacing():void {
       if (velocity.x < 0) {
         facing = LEFT;
-        scale = scaleLeft;
+        scale.x = Math.abs(scale.x);
       } else if (velocity.x > 0) {
         facing = RIGHT;
-        scale = scaleRight;
+        scale.x = Math.abs(scale.x) * -1;
       }
     }
     
@@ -91,7 +91,9 @@ package ema {
 
     override public function update():void {
       super.update();
-      
+    }
+    
+    protected function bounded():void {
       //bounds o' the world
       if(x > FlxG.width*4-width-4) {
         x = FlxG.width*4-width-4;

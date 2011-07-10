@@ -5,26 +5,54 @@ package ema {
 	public class Monster extends GameSprite {
 	  [Embed(source="sprites/monsters/monsterLStrip.png")] private var MonsterStrip:Class
 	  
-	  public static const SMALL:FlxPoint = new FlxPoint(0.3,0.3);
+	  public static const XSMALL:FlxPoint = new FlxPoint(0.2, 0.2);
+	  public static const SMALL:FlxPoint = new FlxPoint(0.4,0.4);
 	  public static const MEDIUM:FlxPoint = new FlxPoint(0.6,0.6);
-	  public static const LARGE:FlxPoint = new FlxPoint(1,1);
+	  public static const LARGE:FlxPoint = new FlxPoint(0.8,0.8);
+	  public static const XLARGE:FlxPoint = new FlxPoint(1,1);
+	  public static const GIANT:FlxPoint = new FlxPoint(1,1);
+	  
+	  public var size:String;
 	  
 	  private var childPile:FlxGroup;
+	  private var attackStart:FlxPoint;
 	  	  
-	  public function Monster(X:Number, Y:Number, size:String, cp:FlxGroup) {
+	  public function Monster(X:Number, Y:Number, s:String, cp:FlxGroup) {
 	    super(X,Y);
 	    childPile = cp;
+	    updateSize(s);
+	    
 	    loadGraphic(MonsterStrip, true, false, 157, 178);
       addAnimation("wander", spriteArray(1, 35), 24, true);
       addAnimation("hungry", spriteArray(1, 35), 24, true);
       addAnimation("flee", spriteArray(1, 35), 24, true);
-      maxVelocity.x = 70;
+      addAnimationCallback(animTransitions);
+      maxVelocity.x = 100;
       
-      switch(size) {
+      velocity.x = maxVelocity.x;
+      
+      play("wander");
+      //bounding box
+/*      width = 130;
+      height = 150;
+      offset.x = 8;
+      offset.y = 16;*/
+    }
+    
+    protected function updateSize(s:String):void {
+	    size = s;
+      	    
+      switch(s) {
+        case "xsmall":
+          scale = SMALL;
+          width = frameWidth*0.2;
+          height = frameHeight*0.2;
+          maxVelocity.x -= 20;
+        break;
         case "small":
           scale = SMALL;
-          width = frameWidth*0.3;
-          height = frameHeight*0.3;
+          width = frameWidth*0.4;
+          height = frameHeight*0.4;
           maxVelocity.x -= 20;
         break;
         case "medium":
@@ -34,38 +62,91 @@ package ema {
           maxVelocity.x -=10;
         break;
         case "large":
+        scale = LARGE;
+        width = frameWidth*0.8;
+        height = frameHeight*0.8;
+        maxVelocity.x -=10;
+        break;
+        case "xlarge":
           scale = LARGE;
         break;
       }
+      updateFacing();
+    }
+    
+    public function decreaseSize():void {
+      var newSize:String;
       
-      velocity.x = maxVelocity.x;
+      switch(size) {
+        case "xsmall":
+          kill();
+          return;
+        break;
+        case "small":
+          newSize = "xsmall";
+        break;
+        case "medium":
+          newSize = "small";
+        break;
+        case "large":
+          newSize = "medium";
+        break;
+        case "xlarge":
+          newSize = "large";
+        break;
+      }
       
-      //bounding box
-/*      width = 130;
-      height = 150;
-      offset.x = 8;
-      offset.y = 16;*/
+      updateSize(newSize);
+    }
+    
+    protected function animTransitions(name:String, frameNumber:uint, frameIndex:uint):void {
+      currentState = name;
     }
     
     protected function freeWill():void {
+      var child:Child = findClosestChild();
+      
       //switch directions
-      if (Math.random() < 0.001) {
+      if (currentState == "wander" && Math.random() < 0.001) {
         velocity.x = velocity.x * -1;
+      } else if (currentState == "wander" && distance(child) < 300 && Math.random() < 0.005) {
+        attackStart = new FlxPoint(x, y);
+        Log.out("Im hungry!")
+        play("hungry");
+        if (child.x - x > 0) {
+          velocity.x = velocity.x;
+        } else {
+          velocity.x = velocity.x * -1;
+        }
+      } else if (currentState == "hungry" && distance(child) > 400) {
+        Log.out("got bored");
+        play("wander");
       }
     }
     
-    protected function findNearbyFood():void {
-      for each (var child:FlxObject in childPile.members) {
-        if (distance(child) < 300) {
-          Log.out("found a snack!");
+    protected function findClosestChild():Child {
+      var minDist:Number = 18000;
+      var minChild:Child;
+      for each (var child:Child in childPile.members) {
+        var dist:Number = distance(child);
+        if (dist < minDist) {
+          minDist = dist;
+          minChild = child;
         }
       }
+      return minChild;
     }
     
     override public function update():void {
-      play('wander');
+      if (!onScreen()) {
+        kill();
+      }
+      
       freeWill();
-      findNearbyFood();
+      if (currentState == "hungry") {
+        y = attackStart.y + Math.sin(Math.abs(attackStart.x - x)/80)*100;
+      }
+      updateFacing();
       super.update();
     }
   }

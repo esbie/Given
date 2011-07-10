@@ -16,7 +16,7 @@ package ema {
       super(X,Y);
       
       loadGraphic(MotherStrip, true, false, 160, 165);
-      maxVelocity.x = 100;      //walking speed
+      maxVelocity.x = 120;      //walking speed
       acceleration.y = 400;     //gravity
       drag.x = maxVelocity.x*4;   //deceleration (sliding to a stop)
       addAnimation("idle", spriteArray(27,47), 24, true);
@@ -62,10 +62,10 @@ package ema {
             play("walk");
           }
         } 
-        if (FlxG.keys.justPressed("UP")) {
+        if (FlxG.keys.justPressed("UP") && !hasChildInMouth()) {
           play("jump", true);
           dispatchEvent(jumpEvent);
-        } else if (FlxG.keys.justPressed("SPACE")) {
+        } else if (FlxG.keys.justPressed("SPACE") && !hasChildInMouth()) {
           play("attack", true);
         } else if (FlxG.keys.justPressed("DOWN")) {
           play("pickup", true);
@@ -98,13 +98,14 @@ package ema {
       
       //jump
       if(onFloor) {
-        if(FlxG.keys.justPressed("UP")) {
+        if(FlxG.keys.justPressed("UP") && !hasChildInMouth()) {
           velocity.y = -acceleration.y*0.40;
         }
       }
 
-      updateFacing();  
+      updateFacing();
       super.update();
+      bounded();
     }
     
     public function pickupChild(child:Child):void {
