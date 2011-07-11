@@ -8,9 +8,17 @@ package ema {
 	  
     public var learnEvent:Event = new Event("learn");
 	  public var aiBox:Object = {
+	    "idle": {
+	      "priority" : 0,
+	      "anims": ["idle"]
+	    },
 	    "followMom": {
 	      "priority" : 1,
 	      "anims": ["idle", "walk", "jump", "attack"]
+	    },
+	    "curious": {
+	      "priority" : 1,
+	      "anims": ["idle", "walk", "jump"]
 	    },
 	    "pickedUpByMom": {
 	      "priority" : 5,
@@ -25,22 +33,27 @@ package ema {
 	  public var currentai:String = "pickedUpByMom";
 	  
 	  protected var mom:Mother;
+	  protected var objectOfInterest:FlxPoint;
 	  protected var skills:Object = {};
 	  protected var maxRadius:FlxPoint;
 	  protected var minRadius:FlxPoint;
-	  [Embed(source="sprites/baby/babyStripg.png")] private var BabyStrip:Class
+	  private var interestOffset:Number;
+	  public var traits:Object;
+
+	  [Embed(source="sprites/baby/babyStripPart1.png")] private var BabyStrip:Class
 	  
-	  public function Child(X:Number, Y:Number, mother:Mother, c:uint) {
+	  public function Child(X:Number, Y:Number, t:Object, c:uint) {
 	    super(X,Y);
 	    loadGraphic(BabyStrip, true, false, 80, 75);
 	    
 	    maxVelocity.x = Math.random() * 20 + 100;			//walking speed
       acceleration.y = 400;			//gravity
       drag.x = maxVelocity.x*4;		//deceleration (sliding to a stop)
-      mom = mother;
+      mom = PlayState(FlxG.state).player;
       color = c;
-      maxRadius = new FlxPoint(75, 100);  //point at which you run to catch up w/ mom
-      minRadius = new FlxPoint(10, 0);
+      traits = t;
+      maxRadius = traits["maxRadius"];  //point at which you run to catch up w/ mom
+      minRadius = traits["minRadius"];
 
       addAnimation("idle", spriteArray(13, 25), 24, true);
       addAnimation("walk", spriteArray(2,12), 24, true);
@@ -51,7 +64,7 @@ package ema {
       addAnimation("ungrabbed", [60,59,58,57,56], 24, false);
       addAnimation("bouncing", spriteArray(60,68), 10, true);
       addAnimation("held", [64]);
-      addAnimation("shudder", [2]);
+      addAnimation("shudder", [2, 3], 24, true);
       addAnimationCallback(animTransitions);
       
       addBoundingBox("idle", 18, 48, 44, 27);
@@ -71,7 +84,7 @@ package ema {
       mom.addEventListener("jump", onMomJump);
       mom.addEventListener("attack", onMomAttack);
       
-      currentai = "followMom";
+      currentai = "idle";
     }
     
     public function isWithinLearningDistance():Boolean {
@@ -95,77 +108,150 @@ package ema {
     }
     
     protected function currentlyBusy():Boolean {
-      return currentai == "pickedUpByMom" || currentState == "jump" || currentState == "readyJump" || currentState == "attack";
+      return currentState == "jump" || currentState == "readyJump" || currentState == "attack";
+    }
+    
+    protected function overlappingTree():Boolean {
+      return FlxU.overlap(this, PlayState(FlxG.state).treePile, function(a:FlxObject, b:FlxObject):Boolean{
+        objectOfInterest = b;
+        interestOffset = b.width * Math.random();
+        return true;
+      });
     }
     
     protected function playAnim():void {
-      if (currentai == "pickedUpByMom") {
-        if (mom.currentState == "walk") {
-          play("bouncing");
-        } else {
-          play("held", true);
-        }
-      } else {
-        if (!currentlyBusy()) {
-          if (velocity.x == 0) {
-            play("idle");
-          } else {
-            play("walk");
-          }
-          if(hasLearned("jump") && Math.random() < 0.005) {
-            play("readyJump", true);
-          } else if(mom.currentState == "attack" && Math.random() < 0.03) {
-            play("attack", true);
-          }
-        }
+      if (!onScreen()) {
+        currentai = "shudder";
       }
+      
+      switch(currentai) {
+        case "idle":
+          play("idle");
+          if (hasLearned("walk")) {
+            if (Math.random() < traits["idleToFollowProbability"]) {
+              currentai = "followMom";
+              interestOffset = mom.width * Math.random();
+            }
+          } else if (mom.currentState == "walk"){
+            genericLearning("walk");
+          }
+        break;
+        case "pickedUpByMom":
+          if (mom.currentState == "walk") {
+            play("bouncing");
+          } else {
+            play("held", true);
+          }
+        break;
+        case "followMom":
+          if (!currentlyBusy()) {
+            if (velocity.x == 0) {
+              play("idle");
+            } else {
+              play("walk");
+            }
+            if(hasLearned("jump") && Math.random() < traits["jumpProbability"]) {
+              play("readyJump", true);
+            } else if(hasLearned("attack") && Math.random() < 0.0005) {
+              play("attack", true);
+            } else if(Math.random() < 0.001 && overlappingTree()) {
+              currentai = "curious";
+            } else if (Math.random() < traits["followToIdleProbability"]) {
+              currentai = "idle";
+            }
+          }
+        break;
+        case "curious":
+          if (!currentlyBusy()) {
+            if (velocity.x == 0) {
+              play("idle");
+            } else {
+              play("walk");
+            }
+            if(hasLearned("jump") && Math.random() < traits["jumpProbability"]) {
+              play("readyJump", true);
+            } else if(hasLearned("attack") && Math.random() < 0.0005) {
+              play("attack", true);
+            } else if(Math.random() < 0.001) {
+              currentai = "followMom";
+            }
+          }
+        break;
+        case "shudder":
+          play("shudder");
+        break;
+      }
+      
       applyBoundingBox(currentState);
     }
     
     override public function update():void {
       playAnim();
-      
       acceleration.x = 0;
       
-      if (currentai == "pickedUpByMom") {
-        var mouthLocation:FlxPoint = mom.mouthLocation();
-        if (facing == LEFT) {
-          x = mouthLocation.x - 12;
-        } else {
-          x = mouthLocation.x - 30;
-        }
-        y = mouthLocation.y - 7;
-      } else {
-        var baseAccel:Number = drag.x*2;
-        var direct:Number = mom.x > x ? 1 : -1;
-        var xFromMom:Number = Math.abs(mom.x - x);
-        var linearAccel:Number = xFromMom / maxRadius.x;
-      
-        //cap linear x acceleration at 1
-        if (onFloor && currentState != "attack") {
-          if(linearAccel > 1) {
-            acceleration.x += baseAccel*direct;
-          } else if (xFromMom < minRadius.x) {
-            acceleration.x = 0; //todo this is superfluous
-          }else {
-            //exponential acceleration inbetween the maxRadius and the minRadius
-            var expAccel:Number = Math.pow(linearAccel,4);
-            acceleration.x += baseAccel*expAccel*direct;
+      switch(currentai) {
+        case "idle":
+          //nuthin
+        break;
+        case "pickedUpByMom":
+          var mouthLocation:FlxPoint = mom.mouthLocation();
+          if (facing == LEFT) {
+            x = mouthLocation.x - 12;
+          } else {
+            x = mouthLocation.x - 30;
           }
-        }
-        
-        var nearestMonster:FlxSprite = findClosestSprite(FlxG.state().monsterPile);
-        if (distance(nearestMonster) < 400) {
-          Log.out("shuddering");
-          currentai = "shudder";
-          play("shudder");
-        }
-        
+          y = mouthLocation.y - 7;
+        break;
+        case "followMom":
+          followObject(mom);
+        break;
+        case "curious":
+          followObject(objectOfInterest);
+        break;
+        case "shudder":
+          // stay where you are :(
+        break;
       }
       
       updateFacing();
       super.update();
       bounded();
+    }
+    
+    protected function followObject(obj:FlxPoint):void {
+      var objectX:Number = obj.x + interestOffset;
+      var baseAccel:Number = drag.x*2;
+      var direct:Number = objectX > x ? 1 : -1;
+      var xFromMom:Number = Math.abs(objectX - x);
+      var linearAccel:Number = xFromMom / maxRadius.x;
+  
+      //cap linear x acceleration at 1
+      if (onFloor && currentState != "attack") {
+        if(linearAccel > 1) {
+          acceleration.x += baseAccel*direct;
+        } else if (xFromMom < minRadius.x) {
+          acceleration.x = 0; //todo this is superfluous
+        } else {
+          //exponential acceleration inbetween the maxRadius and the minRadius
+          var expAccel:Number = Math.pow(linearAccel,4);
+          acceleration.x += baseAccel*expAccel*direct;
+        }
+      }
+    }
+    
+    public function onNearbyMonster():void {
+      if (currentai == "shudder" || aiBox[currentai].priority > aiBox["shudder"].priority) {
+        return;
+      } else {
+        currentai = "shudder";
+        play("shudder");
+      }
+    }
+    
+    public function onNoMonster():void {
+      if (currentai == "shudder"){
+        currentai = "idle";
+      }
     }
     
     public function onMomPickup(event:Event):void {
@@ -184,41 +270,38 @@ package ema {
     }
     
     public function drop():void {
-      currentai = "followMom";
+      currentai = "idle";
       play("ungrabbed", true);
-      
       acceleration.y = 400;
     }
     
     public function hasLearned(skill:String):Boolean {
-      return skills[skill] == 4;
+      return skills[skill] >= 4;
     }
     
-    public function genericLearning(s:String, anim:String, animRestart:Boolean=false):void {
-      if (isWithinLearningDistance()) {
-        if (!hasLearned(s)) {
-          if (!skills[s]) {
-            skills[s] = 0;
-          }
-
-          //it takes time to learn!
-          setTimeout(function():void{
-            if (!currentlyBusy()) {
-              skills[s] += 1;;
-              dispatchEvent(learnEvent);
-              Log.out("I gained a learn point!"+ skills[s]);
-            }
-          }, (Math.random() * 200 + 100));
+    public function genericLearning(s:String):void {
+      if (!hasLearned(s) && isWithinLearningDistance()) {
+        if (!skills[s]) {
+          skills[s] = 0;
         }
+
+        //it takes time to learn!
+        setTimeout(function():void{
+          if (aiBox[currentai].priority < 3 && !hasLearned(s)) {
+            skills[s] += 1;
+            dispatchEvent(learnEvent);
+            Log.out("I gained a learn point!"+ skills[s]);
+          }
+        }, (Math.random() * 200 + 100));
       }
     }
     
     public function onMomJump(event:Event):void {
-      genericLearning("jump", "readyJump", true);
+      genericLearning("jump");
     }
     
     public function onMomAttack(event:Event):void {
-      genericLearning("attack", "attack");
+      genericLearning("attack");
     }
   }
 }

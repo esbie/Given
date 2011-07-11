@@ -102,10 +102,10 @@ package ema {
       }
     }
     
-    protected function findClosestSprite(pile:FlxGroup):FlxSprite {
+    protected function findClosestSprite(pile:FlxGroup):FlxObject {
       var minDist:Number = 18000;
-      var minChild:FlxSprite;
-      for each (var child:FlxSprite in pile.members) {
+      var minChild:FlxObject;
+      for each (var child:FlxObject in pile.members) {
         var dist:Number = distance(child);
         if (dist < minDist) {
           minDist = dist;

@@ -25,12 +25,12 @@ package ema {
     [Embed(source="sprites/nest.png")] private var Nest:Class;
     [Embed(source="sprites/title.png")] private var Title:Class;
     
-	  protected var player:Mother;
+	  public var player:Mother;
 	  protected var secondChild:Child;
 	  protected var onlyChild:Child;
 	  protected var childPile:FlxGroup;
-	  protected var monsterPile:FlxGroup;
-/*    static public var monsterPile:FlxGroup;*/
+	  public var monsterPile:FlxGroup;
+	  public var treePile:FlxGroup;
 	  protected var t:FlxTileblock;
 	  
 	  protected var bg:FlxSprite;
@@ -62,8 +62,24 @@ package ema {
       
       //actors
       player = new Mother(275, FlxG.height-250);
-      onlyChild = new Child(FlxG.width/2-50, FlxG.height-250, player, 0xCFFFEF); //MINT
-      secondChild = new Child(FlxG.width/2+10, FlxG.height-250, player, 0xCFD0FF); //PERIWINKLE
+      onlyChild = new Child(FlxG.width/2-50, FlxG.height-250, {
+        "minRadius": new FlxPoint(25, 0),
+        "maxRadius": new FlxPoint(75, 100),
+        "maxVelocityX": 100,
+        "monsterTolerance": 250,
+        "jumpProbability": 0.001,
+        "idleToFollowProbability": 0.05,
+        "followToIdleProbability": 0.001
+      }, 0xCFFFEF); //MINT
+      secondChild = new Child(FlxG.width/2+10, FlxG.height-250, {
+        "minRadius": new FlxPoint(0, 0),
+        "maxRadius": new FlxPoint(25, 100),
+        "maxVelocityX": 130,
+        "monsterTolerance": 180,
+        "jumpProbability":0.005,
+        "idleToFollowProbability": 0.05,
+        "followToIdleProbability": 0.0005
+      }, 0xCFD0FF); //PERIWINKLE
       childPile = new FlxGroup();
       childPile.add(onlyChild);
       childPile.add(secondChild);
@@ -110,7 +126,7 @@ package ema {
 		}
 		
 		public function treeSpawner(starterHeight:Number):FlxGroup {
-		 var treePile:FlxGroup = new FlxGroup();
+		 treePile = new FlxGroup();
 		 
 		 for (var i:Number = 0; i < 5; i++) {
 		   var embed:Class;
@@ -171,6 +187,38 @@ package ema {
       FlxU.collide(player, t);
       FlxU.collide(onlyChild, t);
       FlxU.collide(secondChild, t);
+      
+      
+      var monsterFound1:Boolean = false;
+      var monsterFound2:Boolean = false;
+      for each (var monster:Monster in monsterPile.members) {
+        if (monsterFound1 && monsterFound2) {
+          break;
+        }
+        
+        if (monster.exists && monster.onScreen()) {
+          if (onlyChild.distance(monster) < onlyChild.traits["monsterTolerance"]) {
+            monsterFound1 = true;
+            if (onlyChild.currentai != "shudder") {
+              onlyChild.onNearbyMonster();
+            }
+          }
+          
+          if (onlyChild.distance(monster) < onlyChild.traits["monsterTolerance"]) {
+            monsterFound2 = true;
+            if (secondChild.currentai != "shudder") {
+              secondChild.onNearbyMonster();            
+            }
+          }
+        }
+      }
+      
+      if (!monsterFound1) {
+        onlyChild.onNoMonster();
+      }
+      if (!monsterFound2) {
+        secondChild.onNoMonster();
+      }
       
       if (player.currentState == "attack") {
         for each (var monster:Monster in monsterPile.members) {

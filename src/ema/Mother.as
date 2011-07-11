@@ -4,7 +4,7 @@ package ema {
   import flash.events.*;
   
   public class Mother extends GameSprite {
-    [Embed(source="sprites/mother/motherStrip.png")] private var MotherStrip:Class
+    [Embed(source="sprites/mother/motherStripPart1.png")] private var MotherStrip:Class
     public var pickupEvent:Event = new Event("pickup");
     public var jumpEvent:Event = new Event("jump");
     public var attackEvent:Event = new Event("attack");
