@@ -117,10 +117,20 @@ package ema {
 
 	  [Embed(source="sprites/baby/babyStripPart1.png")] private var BabyStrip:Class
 	  [Embed(source="sprites/baby/babyStripPart2.png")] private var BabyStrip2:Class
+    public var Graphic1:Object = {
+      embed: BabyStrip,
+      width: 80,
+      height: 75
+    };
+    
+    public var Graphic2:Object = {
+      embed: BabyStrip2,
+      width: 86,
+      height: 81
+    };
 	  
 	  public function Child(X:Number, Y:Number, t:Object, c:uint) {
 	    super(X,Y);
-      loadGraphic(BabyStrip2, true, false, 86, 81);
       loadGraphic(BabyStrip, true, false, 80, 75);
 	    
 	    maxVelocity.x = Math.random() * 20 + 100;			//walking speed
@@ -136,6 +146,7 @@ package ema {
       addAnimationFromSpriteBox(spriteBox2);
       
       addAnimationCallback(animTransitions);
+      currentGraphic = Graphic1;
       applyBoundingBox("idle");
       setCurrentAI("idle", false, true);
       
@@ -308,9 +319,7 @@ package ema {
     }
     
     public function onNearbyMonster():void {
-      if (currentai == "shudder") {
-        return;
-      } else {
+      if (currentai != "shudder") {
         setCurrentAI("shudder", true);
       }
     }
@@ -322,12 +331,9 @@ package ema {
     }
     
     public function onMonsterOverlap():void {
-      y -= 6 + frameHeight - height;
-      play("monsterDeath", true);
-      loadGraphic(BabyStrip2, true, false, 86, 81);
       dead = true;
       setCurrentAI("dead", false, true);
-      update();
+      playGraphic("monsterDeath", true, Graphic2);
     }
     
     public function onMomPickup(event:Event):void {

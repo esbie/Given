@@ -115,8 +115,18 @@ package ema {
       return minChild;
     }
     
-    override public function play(AnimName:String,Force:Boolean=false):void {
-      super.play(AnimName, Force);
+    protected var currentGraphic:Object;
+    
+    public function playGraphic(AnimName:String,Force:Boolean=false, graphic:Object=null):void {
+      if (graphic) {
+        if (currentGraphic != graphic) {
+          y -= graphic["height"] - currentGraphic["height"] + frameHeight - height;
+          currentGraphic = graphic;
+          loadGraphic(graphic["embed"], true, false, graphic["width"], graphic["height"]);
+        }
+        super.play(AnimName, Force);
+        update();
+      }
     }
   
   }
