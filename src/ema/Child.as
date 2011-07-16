@@ -155,14 +155,6 @@ package ema {
       mom.addEventListener("attack", onMomAttack);
     }
     
-    private function addAnimationFromSpriteBox(box:Object):void {
-      for (var spriteName:String in box) {
-        var sprite:Object = box[spriteName];
-        addAnimation(spriteName, sprite["spriteArray"], sprite["framesPerSecond"] || 24, sprite["loop"]);
-        addBoundingBox.apply(null, [spriteName].concat(sprite["boundingBox"]));
-      }
-    }
-    
     public function isWithinLearningDistance():Boolean {
       return Math.abs(mom.x - x) < 400;
     }

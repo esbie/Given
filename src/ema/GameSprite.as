@@ -121,11 +121,22 @@ package ema {
       if (graphic) {
         if (currentGraphic != graphic) {
           y -= graphic["height"] - currentGraphic["height"] + frameHeight - height;
+/*          x -= graphic["width"] - currentGraphic["width"] + frameWidth - width;*/
           currentGraphic = graphic;
           loadGraphic(graphic["embed"], true, false, graphic["width"], graphic["height"]);
+          super.play(AnimName, Force);
+          update();
+        } else {
+          super.play(AnimName, Force);
         }
-        super.play(AnimName, Force);
-        update();
+      }
+    }
+    
+    protected function addAnimationFromSpriteBox(box:Object):void {
+      for (var spriteName:String in box) {
+        var sprite:Object = box[spriteName];
+        addAnimation(spriteName, sprite["spriteArray"], sprite["framesPerSecond"] || 24, sprite["loop"]);
+        addBoundingBox.apply(null, [spriteName].concat(sprite["boundingBox"]));
       }
     }
   

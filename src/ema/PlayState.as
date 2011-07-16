@@ -220,14 +220,19 @@ package ema {
         secondChild.onNoMonster();
       }
       
-      if (player.currentState == "attack") {
+      if (!player.dead) {
         for each (var monster3:Monster in monsterPile.members) {
           if (monster3.exists && monster3.onScreen() && player.overlaps(monster3)) {
-            monster3.scale = new FlxPoint(monster3.scale.x * 0.5, monster3.scale.x * 0.5);
-            if (monster3.scale.x < 0.01) {
-              monster3.kill();
-              player.dispatchEvent(player.attackEvent);
+            if (player.currentState == "attack") {
+              monster3.scale = new FlxPoint(monster3.scale.x * 0.5, monster3.scale.x * 0.5);
+              if (monster3.scale.x < 0.01) {
+                monster3.kill();
+                player.dispatchEvent(player.attackEvent);
+              }
+            } else {
+              player.onMonsterOverlap();
             }
+            break;
           }
         }
       }
