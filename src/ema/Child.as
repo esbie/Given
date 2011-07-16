@@ -327,6 +327,7 @@ package ema {
       loadGraphic(BabyStrip2, true, false, 86, 81);
       dead = true;
       setCurrentAI("dead", false, true);
+      update();
     }
     
     public function onMomPickup(event:Event):void {
