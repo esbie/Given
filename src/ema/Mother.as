@@ -114,7 +114,15 @@ package ema {
           } else if (currentState == "jump") {
             playGraphic("walk", false, Graphic1);
           }
-        } 
+        }
+        
+        //shift key alteration
+        if (FlxG.keys.SHIFT && currentState == "walk") {
+          playGraphic("run", true, Graphic1);
+        } else if (!FlxG.keys.SHIFT && currentState == "run") {
+          playGraphic("walk", true, Graphic1);
+        }
+        
         if (FlxG.keys.justPressed("UP") && !hasChildInMouth()) {
           playGraphic("jump", true, Graphic1);
           dispatchEvent(jumpEvent);
@@ -138,7 +146,13 @@ package ema {
       acceleration.x = 0;
       if (!dead){
         playAnim();
-      
+        
+        if (FlxG.keys.SHIFT) {
+          maxVelocity.x = 240;
+        } else {
+          maxVelocity.x = 120;
+        }
+        
         if(currentState != "attack" && currentState != "pickup") {
           if(FlxG.keys.LEFT) {
             acceleration.x -= drag.x*2;

@@ -205,7 +205,7 @@ package ema {
           }
         break;
         case "pickedUpByMom":
-          if (mom.currentState == "walk") {
+          if (mom.currentState == "walk" || mom.currentState == "run") {
             play("bouncing");
           } else {
             play("held", true);
