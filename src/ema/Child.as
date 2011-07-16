@@ -87,7 +87,23 @@ package ema {
         loop: true,
         boundingBox: [18, 48, 44, 27]
 	    }
-	  }
+	  };
+	  
+	  public var spriteBox2:Object = {
+	    "monsterDeath": {
+	      spriteArray: spriteArray(1,10),
+	      framesPerSecond: 10,
+        loop: false,
+        boundingBox: [19,40,68,36]
+	    }
+    };
+	  
+/*    addAnimation("introSad", spriteArray(11,20), 24, false);
+    addAnimation("sad", spriteArray(21,31), 24, true);
+    addAnimation("outroSad", spriteArray(31, 42), 42, false);
+    addAnimation("play", spriteArray(44,46), 24, true);
+    addAnimation("swim", spriteArray(47,50), 24, true);
+    addAnimation("ball", spriteArray(51,54), 24, false);*/
 	  
 	  public var currentai:String;
 	  
@@ -116,30 +132,24 @@ package ema {
       maxRadius = traits["maxRadius"];  //point at which you run to catch up w/ mom
       minRadius = traits["minRadius"];
 
-      for (var spriteName:String in spriteBox1) {
-        var sprite:Object = spriteBox1[spriteName];
-        addAnimation(spriteName, sprite["spriteArray"], sprite["framesPerSecond"] || 24, sprite["loop"]);
-        addBoundingBox.apply(null, [spriteName].concat(sprite["boundingBox"]));
-      }
+      addAnimationFromSpriteBox(spriteBox1);      
+      addAnimationFromSpriteBox(spriteBox2);
       
       addAnimationCallback(animTransitions);
       applyBoundingBox("idle");
-      
-      addAnimation("monsterDeath", spriteArray(1,10), 10, false);
-      addAnimation("introSad", spriteArray(11,20), 24, false);
-      addAnimation("sad", spriteArray(21,31), 24, true);
-      addAnimation("outroSad", spriteArray(31, 42), 42, false);
-      addAnimation("play", spriteArray(44,46), 24, true);
-      addAnimation("swim", spriteArray(47,50), 24, true);
-      addAnimation("ball", spriteArray(51,54), 24, false);
-
-      addBoundingBox("monsterDeath", 19,40,68,36);
+      setCurrentAI("idle", false, true);
       
       mom.addEventListener("pickup", onMomPickup);
       mom.addEventListener("jump", onMomJump);
       mom.addEventListener("attack", onMomAttack);
-      
-      setCurrentAI("idle", false, true);
+    }
+    
+    private function addAnimationFromSpriteBox(box:Object):void {
+      for (var spriteName:String in box) {
+        var sprite:Object = box[spriteName];
+        addAnimation(spriteName, sprite["spriteArray"], sprite["framesPerSecond"] || 24, sprite["loop"]);
+        addBoundingBox.apply(null, [spriteName].concat(sprite["boundingBox"]));
+      }
     }
     
     public function isWithinLearningDistance():Boolean {
