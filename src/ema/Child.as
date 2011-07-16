@@ -27,10 +27,69 @@ package ema {
 	    "shudder": {
 	      "priority" : 4,
 	      "anims": ["shudder"]
+	    },
+	    "death": {
+	      "priority": 5,
+	      "anims": ["monsterDeath"]
 	    }
 	  };
 	  
-	  public var currentai:String = "pickedUpByMom";
+	  public var spriteBox1:Object = {
+	    "idle": {
+	      spriteArray: spriteArray(13,25),
+        loop: true,
+        boundingBox: [18, 48, 44, 27]
+	    },
+	    "walk": {
+	      spriteArray: spriteArray(2,12),
+        loop: true,
+        boundingBox: [14, 45, 51, 30]
+	    },
+	    "readyJump": {
+	      spriteArray: spriteArray(26,32),
+        loop: false,
+        boundingBox: [13, 45, 67, 30]
+	    },
+	    "jump": {
+	      spriteArray: spriteArray(32,46),
+        loop: false,
+        boundingBox: [18, 0, 44, 75]
+	    },
+	    "attack": {
+	      spriteArray: spriteArray(47,54),
+        loop: false,
+        boundingBox: [18, 27, 49, 48]
+	    },
+	    "grabbed": {
+	      spriteArray: spriteArray(56, 60),
+        loop: false,
+        boundingBox: [18, 31, 44, 43]
+	    },
+	    "ungrabbed": {
+	      spriteArray: [60,59,58,57,56],
+        loop: false,
+        boundingBox: [18, 31, 44, 43]
+	    },
+	    "bouncing": {
+	      spriteArray: spriteArray(60,68),
+	      framesPerSecond: 10,
+        loop: true,
+        boundingBox: [17, 28, 29, 40]
+	    },
+	    "held": {
+	      spriteArray: [64],
+	      framesPerSecond: 0,
+        loop: false,
+        boundingBox: [17, 28, 29, 40]
+	    },
+	    "shudder": {
+	      spriteArray: [2, 3],
+        loop: true,
+        boundingBox: [18, 48, 44, 27]
+	    }
+	  }
+	  
+	  public var currentai:String;
 	  
 	  protected var mom:Mother;
 	  protected var objectOfInterest:FlxPoint;
@@ -41,10 +100,12 @@ package ema {
 	  public var traits:Object;
 
 	  [Embed(source="sprites/baby/babyStripPart1.png")] private var BabyStrip:Class
+	  [Embed(source="sprites/baby/babyStripPart2.png")] private var BabyStrip2:Class
 	  
 	  public function Child(X:Number, Y:Number, t:Object, c:uint) {
 	    super(X,Y);
-	    loadGraphic(BabyStrip, true, false, 80, 75);
+      loadGraphic(BabyStrip2, true, false, 86, 81);
+      loadGraphic(BabyStrip, true, false, 80, 75);
 	    
 	    maxVelocity.x = Math.random() * 20 + 100;			//walking speed
       acceleration.y = 400;			//gravity
@@ -55,36 +116,30 @@ package ema {
       maxRadius = traits["maxRadius"];  //point at which you run to catch up w/ mom
       minRadius = traits["minRadius"];
 
-      addAnimation("idle", spriteArray(13, 25), 24, true);
-      addAnimation("walk", spriteArray(2,12), 24, true);
-      addAnimation("readyJump", spriteArray(26,32), 24, false)
-      addAnimation("jump", spriteArray(32,46), 24, false);
-      addAnimation("attack", spriteArray(47,54), 24, false);
-      addAnimation("grabbed", spriteArray(56,60), 24, false);
-      addAnimation("ungrabbed", [60,59,58,57,56], 24, false);
-      addAnimation("bouncing", spriteArray(60,68), 10, true);
-      addAnimation("held", [64]);
-      addAnimation("shudder", [2, 3], 24, true);
+      for (var spriteName:String in spriteBox1) {
+        var sprite:Object = spriteBox1[spriteName];
+        addAnimation(spriteName, sprite["spriteArray"], sprite["framesPerSecond"] || 24, sprite["loop"]);
+        addBoundingBox.apply(null, [spriteName].concat(sprite["boundingBox"]));
+      }
+      
       addAnimationCallback(animTransitions);
-      
-      addBoundingBox("idle", 18, 48, 44, 27);
-      addBoundingBox("walk", 14, 45, 51, 30);
-      addBoundingBox("readyJump", 13, 45, 67, 30);
-      addBoundingBox("jump", 18, 0, 44, 75);
-      addBoundingBox("attack", 18, 27, 49, 48);
-      addBoundingBox("grabbed", 18, 31, 44, 43);
-      addBoundingBox("ungrabbed", 18, 31, 44, 43);
-      addBoundingBox("bouncing", 17, 28, 29, 40);
-      addBoundingBox("held", 17, 28, 29, 40);
-      addBoundingBox("shudder", 18, 48, 44, 27);
-      
       applyBoundingBox("idle");
+      
+      addAnimation("monsterDeath", spriteArray(1,10), 10, false);
+      addAnimation("introSad", spriteArray(11,20), 24, false);
+      addAnimation("sad", spriteArray(21,31), 24, true);
+      addAnimation("outroSad", spriteArray(31, 42), 42, false);
+      addAnimation("play", spriteArray(44,46), 24, true);
+      addAnimation("swim", spriteArray(47,50), 24, true);
+      addAnimation("ball", spriteArray(51,54), 24, false);
+
+      addBoundingBox("monsterDeath", 19,40,68,36);
       
       mom.addEventListener("pickup", onMomPickup);
       mom.addEventListener("jump", onMomJump);
       mom.addEventListener("attack", onMomAttack);
       
-      currentai = "idle";
+      setCurrentAI("idle", false, true);
     }
     
     public function isWithinLearningDistance():Boolean {
@@ -121,7 +176,7 @@ package ema {
     
     protected function playAnim():void {
       if (!onScreen()) {
-        currentai = "shudder";
+        setCurrentAI("shudder", true);
       }
       
       switch(currentai) {
@@ -129,7 +184,7 @@ package ema {
           play("idle");
           if (hasLearned("walk")) {
             if (Math.random() < traits["idleToFollowProbability"]) {
-              currentai = "followMom";
+              setCurrentAI("followMom");
               interestOffset = mom.width * Math.random();
             }
           } else if (mom.currentState == "walk"){
@@ -155,9 +210,9 @@ package ema {
             } else if(hasLearned("attack") && Math.random() < 0.0005) {
               play("attack", true);
             } else if(Math.random() < 0.001 && overlappingTree()) {
-              currentai = "curious";
+              setCurrentAI("curious");
             } else if (Math.random() < traits["followToIdleProbability"]) {
-              currentai = "idle";
+              setCurrentAI("idle");
             }
           }
         break;
@@ -173,7 +228,7 @@ package ema {
             } else if(hasLearned("attack") && Math.random() < 0.0005) {
               play("attack", true);
             } else if(Math.random() < 0.001) {
-              currentai = "followMom";
+              setCurrentAI("followMom");
             }
           }
         break;
@@ -211,6 +266,9 @@ package ema {
         case "shudder":
           // stay where you are :(
         break;
+        case "dead":
+          //also nuthin
+        break;
       }
       
       updateFacing();
@@ -240,18 +298,25 @@ package ema {
     }
     
     public function onNearbyMonster():void {
-      if (currentai == "shudder" || aiBox[currentai].priority > aiBox["shudder"].priority) {
+      if (currentai == "shudder") {
         return;
       } else {
-        currentai = "shudder";
-        play("shudder");
+        setCurrentAI("shudder", true);
       }
     }
     
     public function onNoMonster():void {
       if (currentai == "shudder"){
-        currentai = "idle";
+        setCurrentAI("idle");
       }
+    }
+    
+    public function onMonsterOverlap():void {
+      y -= 6 + frameHeight - height;
+      play("monsterDeath", true);
+      loadGraphic(BabyStrip2, true, false, 86, 81);
+      dead = true;
+      setCurrentAI("dead", false, true);
     }
     
     public function onMomPickup(event:Event):void {
@@ -260,8 +325,9 @@ package ema {
       	
       	if (distance(mouthLocation) < 75) {
       	  mom.pickupChild(this);
-      	  currentai = "pickedUpByMom";
-          play("held", true);
+      	  setCurrentAI("pickedUpByMom");
+      	  if(!dead)
+            play("held", true);
           
           //babys are weightless!
           acceleration.y = 0;
@@ -270,8 +336,9 @@ package ema {
     }
     
     public function drop():void {
-      currentai = "idle";
-      play("ungrabbed", true);
+      setCurrentAI("idle");
+      if(!dead)
+        play("ungrabbed", true);
       acceleration.y = 400;
     }
     
@@ -293,6 +360,16 @@ package ema {
             Log.out("I gained a learn point!"+ skills[s]);
           }
         }, (Math.random() * 200 + 100));
+      }
+    }
+    
+    public function setCurrentAI(ai:String, usePriority:Boolean = false, force:Boolean = false):void {
+      if (force) {
+        currentai = ai;
+      } else if (currentai != "dead") {
+        if (!usePriority || aiBox[currentai].priority <= aiBox[ai].priority) {
+          currentai = ai
+        }
       }
     }
     

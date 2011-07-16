@@ -3,4 +3,5 @@
 *.swf
 *.png
 *.bmp
+*.psd
 src/org/flixel/*

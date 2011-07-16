@@ -114,6 +114,10 @@ package ema {
       }
       return minChild;
     }
+    
+    override public function play(AnimName:String,Force:Boolean=false):void {
+      super.play(AnimName, Force);
+    }
   
   }
 }
