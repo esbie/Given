@@ -14,12 +14,10 @@ package ema {
 	  
 	  public var size:String;
 	  
-	  private var childPile:FlxGroup;
 	  private var attackStart:FlxPoint;
 	  	  
-	  public function Monster(X:Number, Y:Number, s:String, cp:FlxGroup) {
+	  public function Monster(X:Number, Y:Number, s:String) {
 	    super(X,Y);
-	    childPile = cp;
 	    updateSize(s);
 	    
 	    loadGraphic(MonsterStrip, true, false, 157, 178);
@@ -104,21 +102,21 @@ package ema {
     }
     
     protected function freeWill():void {
-      var child:Child = findClosestChild();
+      var food:FlxSprite = findClosestFood();
       
       //switch directions
       if (currentState == "wander" && Math.random() < 0.001) {
         velocity.x = velocity.x * -1;
-      } else if (currentState == "wander" && distance(child) < 300 && Math.random() < 0.005) {
+      } else if (currentState == "wander" && distance(food) < 300 && Math.random() < 0.05) {
         attackStart = new FlxPoint(x, y);
         Log.out("Im hungry!")
         play("hungry");
-        if (child.x - x > 0) {
+        if (food.x - x > 0) {
           velocity.x = velocity.x;
         } else {
           velocity.x = velocity.x * -1;
         }
-      } else if (currentState == "hungry" && distance(child) > 400) {
+      } else if (currentState == "hungry" && distance(food) > 400) {
         Log.out("got bored");
         play("wander");
       }
@@ -127,7 +125,7 @@ package ema {
     protected function findClosestChild():Child {
       var minDist:Number = 18000;
       var minChild:Child;
-      for each (var child:Child in childPile.members) {
+      for each (var child:Child in PlayState(FlxG.state).childPile.members) {
         var dist:Number = distance(child);
         if (dist < minDist) {
           minDist = dist;
@@ -135,6 +133,23 @@ package ema {
         }
       }
       return minChild;
+    }
+    
+    protected function findClosestFood():FlxSprite {
+      var minDist:Number = 18000;
+      var minMonster:Monster;
+      for each (var monster:Monster in PlayState(FlxG.state).monsterPile.members) {
+        if (monster.exists && monster.width < width) {
+          var dist:Number = distance(monster);
+          if (dist < minDist) {
+            minDist = dist;
+            minMonster = monster;
+          }
+        }
+      }
+      
+      var minChild:Child = findClosestChild();
+      return minChild ? minChild : minMonster;
     }
     
     override public function update():void {

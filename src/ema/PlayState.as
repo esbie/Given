@@ -24,11 +24,12 @@ package ema {
     [Embed(source="sprites/cave.png")] private var Cave:Class;
     [Embed(source="sprites/nest.png")] private var Nest:Class;
     [Embed(source="sprites/title.png")] private var Title:Class;
+    [Embed(source="sprites/arrowDown.png")] private var Arrow:Class;
     
 	  public var player:Mother;
 	  protected var secondChild:Child;
 	  protected var onlyChild:Child;
-	  protected var childPile:FlxGroup;
+	  public var childPile:FlxGroup;
 	  public var monsterPile:FlxGroup;
 	  public var treePile:FlxGroup;
 	  protected var t:FlxTileblock;
@@ -92,6 +93,15 @@ package ema {
       title.y = 50;
       nest.x = 30;
       nest.y = 330;
+
+      var arrowDown:FlxSprite = new FlxSprite(58, 245, Arrow);
+      arrowDown.alpha = 0.5;
+      var arrowLeft:FlxSprite = new FlxSprite(500, 200, Arrow);
+      arrowLeft.alpha = 0.8;
+      arrowLeft.angle = 90;
+      var arrowRight:FlxSprite = new FlxSprite(650, 200, Arrow);
+      arrowRight.alpha = 0.8;
+      arrowRight.angle = 270;
       
       debug = player.mouthDebug;
       
@@ -115,6 +125,9 @@ package ema {
       add(player);
       add(childPile);
       add(nest);
+      add(arrowDown);
+      add(arrowLeft);
+      add(arrowRight);
       
       add(debug);
       
@@ -174,7 +187,7 @@ package ema {
           case 4: size = "xlarge";
           break;
         }
-        monsterPile.add(new Monster(Math.random() * 800, Math.random() * 400, size, childPile));
+        monsterPile.add(new Monster(Math.random() * 800, Math.random() * 400, size));
 		  }, 5000);
       
       return monsterPile;
@@ -224,9 +237,8 @@ package ema {
         for each (var monster3:Monster in monsterPile.members) {
           if (monster3.exists && monster3.onScreen() && player.overlaps(monster3)) {
             if (player.currentState == "attack") {
-              monster3.scale = new FlxPoint(monster3.scale.x * 0.5, monster3.scale.x * 0.5);
-              if (monster3.scale.x < 0.01) {
-                monster3.kill();
+              monster3.decreaseSize();
+              if (monster3.dead) {
                 player.dispatchEvent(player.attackEvent);
               }
             } else {
