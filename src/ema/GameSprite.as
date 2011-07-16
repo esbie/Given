@@ -115,6 +115,13 @@ package ema {
       return minChild;
     }
     
+    public var maxHealth:Number;
+    
+    public function updateHealth():void {
+      if (health >= maxHealth) return;
+      else health = health + 1;
+    }
+    
     protected var currentGraphic:Object;
     
     public function playGraphic(AnimName:String,Force:Boolean=false, graphic:Object=null):void {

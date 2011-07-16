@@ -87,6 +87,9 @@ package ema {
       offset.x = 5;
       offset.y = 70;
       
+      maxHealth = 600;
+      health = 600;
+      
       mouthDebug = new FlxSprite(X, Y);
       mouthDebug.createGraphic(4,4,0x000000);
     }
@@ -171,6 +174,7 @@ package ema {
         }
       }
 
+      updateHealth();
       updateFacing();
       super.update();
       bounded();
@@ -204,8 +208,12 @@ package ema {
     
     public function onMonsterOverlap():void {
       if (dead) return;
-      dead = true;
-      playGraphic("monsterDeath", true, Graphic2);
+      health -= 5;
+      flicker(0.3);
+      if (health <= 0) {
+        dead = true;
+        playGraphic("monsterDeath", true, Graphic2);
+      }
     }
   }
 }

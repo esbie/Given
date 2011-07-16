@@ -139,6 +139,8 @@ package ema {
       mom = PlayState(FlxG.state).player;
       color = c;
       traits = t;
+      maxHealth = 600;
+      health = 600;
       maxRadius = traits["maxRadius"];  //point at which you run to catch up w/ mom
       minRadius = traits["minRadius"];
 
@@ -284,6 +286,7 @@ package ema {
         break;
       }
       
+      updateHealth();
       updateFacing();
       super.update();
       bounded();
@@ -323,9 +326,13 @@ package ema {
     }
     
     public function onMonsterOverlap():void {
-      dead = true;
-      setCurrentAI("dead", false, true);
-      playGraphic("monsterDeath", true, Graphic2);
+      health -= 5;
+      flicker(0.3);
+      if (health <= 0) {
+        dead = true;
+        setCurrentAI("dead", false, true);
+        playGraphic("monsterDeath", true, Graphic2);
+      }
     }
     
     public function onMomPickup(event:Event):void {
