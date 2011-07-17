@@ -4,22 +4,22 @@ package ema {
       "idle": {
         spriteArray: spriteArray(27,47),
         loop: true,
-        boundingBox: [5, 70, 127, 72]
+        boundingBox: [5, 70, 128, 74]
       },
       "idleWalk": {
         spriteArray: spriteArray(69,72),
         loop: false,
-        boundingBox: [5, 70, 127, 72]
+        boundingBox: [5, 70, 128, 74]
       },
       "walk": {
         spriteArray: spriteArray(2,21),
         loop: true,
-        boundingBox: [5, 70, 127, 72]
+        boundingBox: [5, 70, 132, 74]
       },
       "walkRun": {
         spriteArray: spriteArray(22,26),
         loop: false,
-        boundingBox: [5, 70, 127, 72]
+        boundingBox: [6, 72, 148, 78]
       },
       "walkAttack": {
         spriteArray: spriteArray(94,98),
@@ -34,22 +34,22 @@ package ema {
       "run": {
         spriteArray: spriteArray(99,118),
         loop: true,
-        boundingBox: [5, 70, 127, 72]
+        boundingBox: [6, 72, 148, 78]
       },
       "attack": {
         spriteArray: spriteArray(120,141),
         loop: false,
-        boundingBox: [5, 70, 127, 72]
+        boundingBox: [5, 2, 132, 140]
       },
       "jump": {
         spriteArray: spriteArray(47,68),
         loop: false,
-        boundingBox: [5, 70, 127, 72]
+        boundingBox: [4, 33, 154, 110]
       },
       "pickup": {
         spriteArray: spriteArray(142,150),
         loop: false,
-        boundingBox: [5, 70, 127, 72]
+        boundingBox: [5, 70, 128, 74]
       }
     };
     

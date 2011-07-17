@@ -27,13 +27,11 @@ package ema {
       addAnimationCallback(animTransitions);
       
       //getting the bounding box perfect
-      width = 127;
-      height = 72;
-      offset.x = 5;
-      offset.y = 70;
+      maxHealth = 1;
+      health = 1;
       
-      maxHealth = 6000;
-      health = 6000;
+      applyBoundingBox("idle");
+      currentState = "idle";
       
       mouthDebug = new FlxSprite(X, Y);
       mouthDebug.createGraphic(4,4,0x000000);
@@ -88,6 +86,8 @@ package ema {
           playGraphic("idle", false, manifest.MomGraphic1);
         }
       }
+      
+      applyBoundingBox(currentState);
     }
     
     override public function update():void {

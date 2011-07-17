@@ -337,7 +337,7 @@ package ema {
       if (health <= 0) {
         dead = true;
         setCurrentAI("dead", false, true);
-        playGraphic("monsterDeath", true, manifest.BabyGraphic2);
+        playGraphic("monsterDeath", true, mode == "adult"? manifest.MomGraphic1 : manifest.BabyGraphic2);
       }
     }
     
