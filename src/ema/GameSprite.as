@@ -7,10 +7,12 @@ package ema {
     public var currentState:String;
     protected var boundingBoxes:Object;
     protected var dispatcher:EventDispatcher;
+    protected var manifest:SpriteManifest;
     
     public function GameSprite(X:Number, Y:Number) {
       dispatcher = new EventDispatcher();
       boundingBoxes = {};
+      manifest = new SpriteManifest();
       super(X,Y);
     }
     

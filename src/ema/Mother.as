@@ -4,65 +4,18 @@ package ema {
   import flash.events.*;
 
   public class Mother extends GameSprite {
-    public var spriteBox2:Object = {
-      "play": {
-        spriteArray: spriteArray(2,16),
-        loop: true,
-        boundingBox: [4, 77, 126, 74]
-      },
-      "monsterDeath": {
-        spriteArray: spriteArray(19,34),
-        framesPerSecond: 15,
-        loop: false,
-        boundingBox: [4, 0, 257, 157]
-      },
-      "agedWalk": {
-        spriteArray: spriteArray(37,56),
-        loop: true,
-        boundingBox: [4, 77, 126, 74]
-      },
-      "veryAgedWalk": {
-        spriteArray: spriteArray(58,77),
-        loop: true,
-        boundingBox: [6, 79, 125, 71]
-      },
-      "death": {
-        spriteArray: spriteArray(78,91),
-        loop: false,
-        boundingBox: [6, 83, 139, 68]
-      },
-      "newJump": {
-        spriteArray: spriteArray(92,111),
-        loop: false,
-        boundingBox: [3, 38, 139, 110]
-      }
-    };
-    
-    [Embed(source="sprites/mother/motherStripPart1.png")] private var MotherStrip:Class
-    [Embed(source="sprites/mother/motherStripPart2.png")] private var MotherStrip2:Class
-    public var Graphic1:Object = {
-      embed: MotherStrip,
-      width: 160,
-      height: 165
-    };
-    public var Graphic2:Object = {
-      embed: MotherStrip2,
-      width: 262,
-      height: 168
-    };
-    
-    
+
     public var pickupEvent:Event = new Event("pickup");
     public var jumpEvent:Event = new Event("jump");
     public var attackEvent:Event = new Event("attack");
   
     protected var childInMouth:Child;
-    public var mouthDebug:FlxSprite; 
+    public var mouthDebug:FlxSprite;
     
     public function Mother(X:Number, Y:Number) {
       super(X,Y);
       
-      loadGraphic(MotherStrip, true, false, 160, 165);
+      loadGraphic(manifest.MotherStrip, true, false, 160, 165);
       maxVelocity.x = 120;      //walking speed
       acceleration.y = 400;     //gravity
       drag.x = maxVelocity.x*4;   //deceleration (sliding to a stop)
@@ -76,9 +29,9 @@ package ema {
       addAnimation("jump", spriteArray(47,68), 24, false);
       addAnimation("pickup", spriteArray(142,150), 24, false);
       
-      currentGraphic = Graphic1;
+      currentGraphic = manifest.MomGraphic1;
       
-      addAnimationFromSpriteBox(spriteBox2);
+      addAnimationFromSpriteBox(manifest.momSpriteBox2);
       addAnimationCallback(animTransitions);
       
       //getting the bounding box perfect
@@ -101,9 +54,9 @@ package ema {
       //one shot animation resets
       if (finished) {
         if (name == "idleWalk") {
-          playGraphic("walk", false, Graphic1);
+          playGraphic("walk", false, manifest.MomGraphic1);
         } else if (name == "attack" || name == "pickup") {
-          playGraphic("idle", false, Graphic1);
+          playGraphic("idle", false, manifest.MomGraphic1);
         }
       }
     }
@@ -113,26 +66,26 @@ package ema {
       if (onFloor) {
         if (FlxG.keys.LEFT || FlxG.keys.RIGHT) {
           if (currentState == "idle") {
-            playGraphic("idleWalk", true, Graphic1);
+            playGraphic("idleWalk", true, manifest.MomGraphic1);
           } else if (currentState == "jump") {
-            playGraphic("walk", false, Graphic1);
+            playGraphic("walk", false, manifest.MomGraphic1);
           }
         }
         
         //shift key alteration
         if (FlxG.keys.SHIFT && currentState == "walk") {
-          playGraphic("run", true, Graphic1);
+          playGraphic("run", true, manifest.MomGraphic1);
         } else if (!FlxG.keys.SHIFT && currentState == "run") {
-          playGraphic("walk", true, Graphic1);
+          playGraphic("walk", true, manifest.MomGraphic1);
         }
         
         if (FlxG.keys.justPressed("UP") && !hasChildInMouth()) {
-          playGraphic("jump", true, Graphic1);
+          playGraphic("jump", true, manifest.MomGraphic1);
           dispatchEvent(jumpEvent);
         } else if (FlxG.keys.justPressed("SPACE") && !hasChildInMouth()) {
-          playGraphic("attack", true, Graphic1);
+          playGraphic("attack", true, manifest.MomGraphic1);
         } else if (FlxG.keys.justPressed("DOWN")) {
-          playGraphic("pickup", true, Graphic1);
+          playGraphic("pickup", true, manifest.MomGraphic1);
           if (!hasChildInMouth()) {
             dispatchEvent(pickupEvent);
           } else {
@@ -140,7 +93,7 @@ package ema {
             childInMouth = null;
           }
         } else if (velocity.x == 0 && currentState != "attack" && currentState != "pickup"){
-          playGraphic("idle", false, Graphic1);
+          playGraphic("idle", false, manifest.MomGraphic1);
         }
       }
     }
@@ -212,7 +165,7 @@ package ema {
       flicker(0.3);
       if (health <= 0) {
         dead = true;
-        playGraphic("monsterDeath", true, Graphic2);
+        playGraphic("monsterDeath", true, manifest.MomGraphic2);
       }
     }
   }
