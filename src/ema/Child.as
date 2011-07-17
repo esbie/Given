@@ -104,11 +104,11 @@ package ema {
         //some roundabout logic to delay the baby jumps
         if (name == "readyJump") {
           velocity.y = -acceleration.y*0.35;
-          play("jump", true);
+          playGraphic("jump", true, manifest.BabyGraphic1);
         } else if (name == "jump" || name == "attack" || name == "ungrabbed") {
-          play("idle");
+          playGraphic("idle", false, manifest.BabyGraphic1);
         } else if(name == "grabbed") {
-          play("bouncing");
+          playGraphic("bouncing", false, manifest.BabyGraphic1);
         }
       }
     }
@@ -188,7 +188,7 @@ package ema {
         break;
       }
 
-/*      applyBoundingBox(currentState);*/
+      applyBoundingBox(currentState);
     }
     
     protected function playAnim():void {
