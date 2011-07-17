@@ -158,7 +158,7 @@ package ema {
     }
     
     public function isWithinLearningDistance():Boolean {
-      return Math.abs(mom.x - x) < 400;
+      return Math.abs(mom.x - x) < 400 && Math.random() < 0.4;
     }
     
     protected function animTransitions(name:String, frameNumber:uint, frameIndex:uint):void {
