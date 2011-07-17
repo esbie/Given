@@ -1,5 +1,58 @@
 package ema {
   public class SpriteManifest {
+    public const momSpriteBox1:Object = {
+      "idle": {
+        spriteArray: spriteArray(27,47),
+        loop: true,
+        boundingBox: [5, 70, 127, 72]
+      },
+      "idleWalk": {
+        spriteArray: spriteArray(69,72),
+        loop: false,
+        boundingBox: [5, 70, 127, 72]
+      },
+      "walk": {
+        spriteArray: spriteArray(2,21),
+        loop: true,
+        boundingBox: [5, 70, 127, 72]
+      },
+      "walkRun": {
+        spriteArray: spriteArray(22,26),
+        loop: false,
+        boundingBox: [5, 70, 127, 72]
+      },
+      "walkAttack": {
+        spriteArray: spriteArray(94,98),
+        loop: false,
+        boundingBox: [5, 70, 127, 72]
+      },
+      "walkRun": {
+        spriteArray: spriteArray(22,26),
+        loop: false,
+        boundingBox: [5, 70, 127, 72]
+      },
+      "run": {
+        spriteArray: spriteArray(99,118),
+        loop: true,
+        boundingBox: [5, 70, 127, 72]
+      },
+      "attack": {
+        spriteArray: spriteArray(120,141),
+        loop: false,
+        boundingBox: [5, 70, 127, 72]
+      },
+      "jump": {
+        spriteArray: spriteArray(47,68),
+        loop: false,
+        boundingBox: [5, 70, 127, 72]
+      },
+      "pickup": {
+        spriteArray: spriteArray(142,150),
+        loop: false,
+        boundingBox: [5, 70, 127, 72]
+      }
+    };
+    
     public const momSpriteBox2:Object = {
       "play": {
         spriteArray: spriteArray(2,16),
