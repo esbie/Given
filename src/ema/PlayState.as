@@ -201,6 +201,7 @@ package ema {
       FlxU.collide(onlyChild, t);
       FlxU.collide(secondChild, t);
       
+      updateMonsterOverlap();
       
       var monsterFound1:Boolean = false;
       var monsterFound2:Boolean = false;
@@ -259,6 +260,19 @@ package ema {
           }
         }
       }
+		}
+		
+		public function updateMonsterOverlap():void {
+      for each (var monster:Monster in monsterPile.members) {
+        if (monster.exists && monster.onScreen()) {
+          for each (var other:Monster in monsterPile.members) {
+            if (monster != other && other.exists && other.onScreen() && monster.overlaps(other)) {
+              other.decreaseSize();
+              monster.decreaseSize();
+            }
+          }
+        }
+      }   
 		}
 	}
 	

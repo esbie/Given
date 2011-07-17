@@ -87,8 +87,8 @@ package ema {
       offset.x = 5;
       offset.y = 70;
       
-      maxHealth = 600;
-      health = 600;
+      maxHealth = 6000;
+      health = 6000;
       
       mouthDebug = new FlxSprite(X, Y);
       mouthDebug.createGraphic(4,4,0x000000);

@@ -147,5 +147,24 @@ package ema {
       }
     }
   
+    override public function overlaps(Object:FlxObject):Boolean
+		{
+			getScreenXY(_point);
+			var tx:Number = _point.x;
+			var ty:Number = _point.y;
+			var tw:Number = width;
+			var th:Number = height;
+
+			Object.getScreenXY(_point);
+			var ox:Number = _point.x;
+			var oy:Number = _point.y;
+			var ow:Number = Object.width;
+			var oh:Number = Object.height;
+
+			if((ox <= tx-ow) || (ox >= tx+tw) || (oy <= ty-oh) || (oy >= ty+th))
+				return false;
+			return true;
+		}
+  
   }
 }

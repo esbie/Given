@@ -13,28 +13,27 @@ package ema {
 	  public static const GIANT:FlxPoint = new FlxPoint(1,1);
 	  
 	  public var size:String;
+	  public var sizeNum:Number;
 	  
 	  private var attackStart:FlxPoint;
 	  	  
 	  public function Monster(X:Number, Y:Number, s:String) {
 	    super(X,Y);
-	    updateSize(s);
-	    
 	    loadGraphic(MonsterStrip, true, false, 157, 178);
       addAnimation("wander", spriteArray(1, 35), 24, true);
       addAnimation("hungry", spriteArray(1, 35), 24, true);
       addAnimation("flee", spriteArray(1, 35), 24, true);
       addAnimationCallback(animTransitions);
       maxVelocity.x = 100;
-      
+	    updateSize(s);
       velocity.x = maxVelocity.x;
       
       play("wander");
       //bounding box
 /*      width = 130;
-      height = 150;
+      height = 150;*/
       offset.x = 8;
-      offset.y = 16;*/
+      offset.y = 16;
     }
     
     protected function updateSize(s:String):void {
@@ -43,30 +42,35 @@ package ema {
       switch(s) {
         case "xsmall":
           scale = SMALL;
-          width = frameWidth*0.2;
-          height = frameHeight*0.2;
+          width = 31;
+          height = 34;
           maxVelocity.x -= 20;
+          sizeNum = 0;
         break;
         case "small":
           scale = SMALL;
-          width = frameWidth*0.4;
-          height = frameHeight*0.4;
+          width = 60;
+          height = 60;
           maxVelocity.x -= 20;
+          sizeNum = 1;
         break;
         case "medium":
           scale = MEDIUM;
-          width = frameWidth*0.6;
-          height = frameHeight*0.6;
+          width = 90;
+          height = 90;
           maxVelocity.x -=10;
+          sizeNum = 2;
         break;
         case "large":
-        scale = LARGE;
-        width = frameWidth*0.8;
-        height = frameHeight*0.8;
-        maxVelocity.x -=10;
+          scale = LARGE;
+          width = 120;
+          height = 120;
+          maxVelocity.x -=10;
+          sizeNum = 3;
         break;
         case "xlarge":
           scale = LARGE;
+          sizeNum = 4;
         break;
       }
       updateFacing();
