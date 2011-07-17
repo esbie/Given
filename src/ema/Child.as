@@ -41,13 +41,14 @@ package ema {
 	  protected var skills:Object = {};
 	  protected var maxRadius:FlxPoint;
 	  protected var minRadius:FlxPoint;
+	  protected var mode:String;
 	  private var interestOffset:Number;
 	  public var traits:Object;
 	  
 	  public function Child(X:Number, Y:Number, t:Object, c:uint) {
 	    super(X,Y);
-      loadGraphic(manifest.BabyStrip, true, false, 80, 75);
-	    
+
+
 	    maxVelocity.x = Math.random() * 20 + 100;			//walking speed
       acceleration.y = 400;			//gravity
       drag.x = maxVelocity.x*4;		//deceleration (sliding to a stop)
@@ -59,17 +60,37 @@ package ema {
       maxRadius = traits["maxRadius"];  //point at which you run to catch up w/ mom
       minRadius = traits["minRadius"];
 
-      addAnimationFromSpriteBox(manifest.BabySpriteBox1);      
-      addAnimationFromSpriteBox(manifest.BabySpriteBox2);
-      
-      addAnimationCallback(animTransitions);
-      currentGraphic = manifest.BabyGraphic1;
-      applyBoundingBox("idle");
+
+/*      useChildSprites();*/
+      useAdultSprites();
+
       setCurrentAI("idle", false, true);
       
       mom.addEventListener("pickup", onMomPickup);
       mom.addEventListener("jump", onMomJump);
       mom.addEventListener("attack", onMomAttack);
+    }
+    
+    private function useChildSprites():void {
+      mode = "child";
+      loadGraphic(manifest.BabyStrip, true, false, 80, 75);
+      addAnimationFromSpriteBox(manifest.BabySpriteBox1);      
+      addAnimationFromSpriteBox(manifest.BabySpriteBox2);
+
+      addAnimationCallback(animTransitions);
+      currentGraphic = manifest.BabyGraphic1;
+      applyBoundingBox("idle");
+    }
+    
+    private function useAdultSprites():void {
+      mode = "adult";
+      loadGraphic(manifest.MotherStrip, true, false, 160, 165);
+      addAnimationFromSpriteBox(manifest.momSpriteBox1);      
+      addAnimationFromSpriteBox(manifest.momSpriteBox2);
+
+      addAnimationCallback(animTransitionsAdult);
+      currentGraphic = manifest.MomGraphic1;
+      applyBoundingBox("idle");
     }
     
     public function isWithinLearningDistance():Boolean {
@@ -92,6 +113,20 @@ package ema {
       }
     }
     
+    protected function animTransitionsAdult(name:String, frameNumber:uint, frameIndex:uint):void {
+      if (dead) return;
+      currentState = name;
+      
+      //one shot animation resets
+      if (finished) {
+        if (name == "idleWalk") {
+          playGraphic("walk", false, manifest.MomGraphic1);
+        } else if (name == "attack" || name == "jump") {
+          playGraphic("idle", false, manifest.MomGraphic1);
+        }
+      }
+    }
+    
     protected function currentlyBusy():Boolean {
       return currentState == "jump" || currentState == "readyJump" || currentState == "attack";
     }
@@ -102,6 +137,58 @@ package ema {
         interestOffset = b.width * Math.random();
         return true;
       });
+    }
+    
+    protected function playAnimAdult():void {
+      switch(currentai) {
+        case "idle":
+          play("idle");
+          if (hasLearned("walk")) {
+            if (Math.random() < traits["idleToFollowProbability"]) {
+              setCurrentAI("followMom");
+              interestOffset = mom.width * Math.random();
+            }
+          } else if (mom.currentState == "walk"){
+            genericLearning("walk");
+          }
+        break;
+        case "followMom":
+          if (!currentlyBusy()) {
+            if (velocity.x == 0) {
+              play("idle");
+            } else {
+              play("walk");
+            }
+            if(hasLearned("jump") && Math.random() < traits["jumpProbability"]) {
+              play("jump", true);
+            } else if(hasLearned("attack") && Math.random() < 0.0005) {
+              play("attack", true);
+            } else if(Math.random() < 0.001 && overlappingTree()) {
+              setCurrentAI("curious");
+            } else if (Math.random() < traits["followToIdleProbability"]) {
+              setCurrentAI("idle");
+            }
+          }
+        break;
+        case "curious":
+          if (!currentlyBusy()) {
+            if (velocity.x == 0) {
+              play("idle");
+            } else {
+              play("walk");
+            }
+            if(hasLearned("jump") && Math.random() < traits["jumpProbability"]) {
+              play("jump", true);
+            } else if(hasLearned("attack") && Math.random() < 0.0005) {
+              play("attack", true);
+            } else if(Math.random() < 0.001) {
+              setCurrentAI("followMom");
+            }
+          }
+        break;
+      }
+
+/*      applyBoundingBox(currentState);*/
     }
     
     protected function playAnim():void {
@@ -171,7 +258,11 @@ package ema {
     }
     
     override public function update():void {
-      playAnim();
+      if (mode == "adult") {
+        playAnimAdult();
+      } else {
+        playAnim();
+      }
       acceleration.x = 0;
       
       switch(currentai) {
@@ -229,7 +320,7 @@ package ema {
     }
     
     public function onNearbyMonster():void {
-      if (currentai != "shudder") {
+      if (currentai != "shudder" && mode != "adult") {
         setCurrentAI("shudder", true);
       }
     }
@@ -251,7 +342,7 @@ package ema {
     }
     
     public function onMomPickup(event:Event):void {
-      if (!mom.hasChildInMouth()) {
+      if (!mom.hasChildInMouth() && mode != "adult") {
         var mouthLocation:FlxPoint = mom.mouthLocation();
       	
       	if (distance(mouthLocation) < 75) {
