@@ -141,6 +141,10 @@ package ema {
 		public function treeSpawner(starterHeight:Number):FlxGroup {
 		 treePile = new FlxGroup();
 		 
+		 var treeColors:Array = [0xcfe0ff, 0xcff0ff, 0xcffffe, 0xcfffee, 0xcfffde, 0xd0ffcf, 0xe0ffcf, 
+		 0xf0ffcf, 0xfffecf, 0xffeecf, 0xffdecf, 0xffcfd0,
+     0xffcfe0, 0xffcff0, 0xfecfff, 0xeecfff, 0xdecfff];
+		 
 		 for (var i:Number = 0; i < 5; i++) {
 		   var embed:Class;
 		   var num:Number = Math.floor(Math.random() * 5);
@@ -159,9 +163,14 @@ package ema {
        var tree:FlxSprite = new FlxSprite(Math.random() * 2000 + 600, Math.random() * 40 + starterHeight, embed);
        tree.y -= tree.height;
        tree.scrollFactor = new FlxPoint(0.7,0.7);
+       
+       //50% chance of flippage
        if (Math.random() < 0.5) {
          tree.scale = new FlxPoint(-1,1);
        }
+       
+       tree.color = treeColors[Math.floor(Math.random() * treeColors.length)];
+       
        treePile.add(tree);
 		 }
 		 

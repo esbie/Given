@@ -19,7 +19,9 @@ package ema {
 	  	  
 	  public function Monster(X:Number, Y:Number, s:String) {
 	    super(X,Y);
-	    loadGraphic(MonsterStrip, true, false, 157, 178);
+/*      loadGraphic(MonsterStrip, true, false, 157, 178);*/
+      loadGraphic(MonsterStrip, true, false, 71, 78);
+      
       addAnimation("wander", spriteArray(1, 35), 24, true);
       addAnimation("hungry", spriteArray(1, 35), 24, true);
       addAnimation("flee", spriteArray(1, 35), 24, true);
@@ -32,8 +34,8 @@ package ema {
       //bounding box
 /*      width = 130;
       height = 150;*/
-      offset.x = 8;
-      offset.y = 16;
+/*      offset.x = 8;
+      offset.y = 16;*/
     }
     
     protected function updateSize(s:String):void {

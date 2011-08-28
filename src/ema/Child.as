@@ -48,7 +48,6 @@ package ema {
 	  public function Child(X:Number, Y:Number, t:Object, c:uint) {
 	    super(X,Y);
 
-
 	    maxVelocity.x = Math.random() * 20 + 100;			//walking speed
       acceleration.y = 400;			//gravity
       drag.x = maxVelocity.x*4;		//deceleration (sliding to a stop)
@@ -84,12 +83,12 @@ package ema {
     
     private function useAdultSprites():void {
       mode = "adult";
-      loadGraphic(manifest.MotherStrip, true, false, 160, 165);
-      addAnimationFromSpriteBox(manifest.momSpriteBox1);      
-      addAnimationFromSpriteBox(manifest.momSpriteBox2);
+      loadGraphic(manifest.TeenGraphic1.embed, true, false, manifest.TeenGraphic1.width, manifest.TeenGraphic1.height);
+      addAnimationFromSpriteBox(manifest.teenSpriteBox1);      
+      addAnimationFromSpriteBox(manifest.teenSpriteBox2);
 
       addAnimationCallback(animTransitionsAdult);
-      currentGraphic = manifest.MomGraphic1;
+      currentGraphic = manifest.TeenGraphic1;
       applyBoundingBox("idle");
     }
     
@@ -120,9 +119,9 @@ package ema {
       //one shot animation resets
       if (finished) {
         if (name == "idleWalk") {
-          playGraphic("walk", false, manifest.MomGraphic1);
+          playGraphic("walk", false, manifest.TeenGraphic1);
         } else if (name == "attack" || name == "jump") {
-          playGraphic("idle", false, manifest.MomGraphic1);
+          playGraphic("idle", false, manifest.TeenGraphic1);
         }
       }
     }
@@ -337,7 +336,7 @@ package ema {
       if (health <= 0) {
         dead = true;
         setCurrentAI("dead", false, true);
-        playGraphic("monsterDeath", true, mode == "adult"? manifest.MomGraphic1 : manifest.BabyGraphic2);
+        playGraphic("monsterDeath", true, mode == "adult"? manifest.TeenGraphic1 : manifest.BabyGraphic2);
       }
     }
     
