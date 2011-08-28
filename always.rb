@@ -4,7 +4,7 @@ require 'rubygems'
 require 'sinatra'
 
 $files = {
-  'debug/ema.swf' => "mxmlc -debug=true -target-player=10.0.0 -o=debug/ema.swf -compiler.source-path=src src/ema/Main.as"
+  'debug/ema.swf' => "mxmlc -debug=true -target-player=10.0.0 -o=debug/ema.swf -static-link-runtime-shared-libraries=true -compiler.source-path=src src/ema/Main.as"
 }
 
 $targets = {}

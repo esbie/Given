@@ -3,7 +3,7 @@ package ema {
 	import ema.utils.Log;
 	
 	public class Monster extends GameSprite {
-	  [Embed(source="sprites/monsters/monsterLStrip.png")] private var MonsterStrip:Class
+	  [Embed(source="sprites/monsters/monster1_wander.png")] private var MonsterStrip:Class
 	  
 	  public static const XSMALL:FlxPoint = new FlxPoint(0.2, 0.2);
 	  public static const SMALL:FlxPoint = new FlxPoint(0.4,0.4);
